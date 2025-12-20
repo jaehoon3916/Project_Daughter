@@ -13,11 +13,14 @@ def main():
     # 4. 기타 스탯 정보
 
     # user_input = "안녕?"
-    user_input = sys.argv[1]
+    while True:
+        user_input = input("나: ")
+        if(user_input.lower() in ["exit", "quit"]):
+            print("대화를 종료합니다.")
+            sys .exit(0)
 
-
-    response = model_hub.run_model(user_input)
-    print(f"response: {response}")
+        response = model_hub.run_model(user_input)
+        print(f"response: {response}")
 
 if __name__ == "__main__":
     

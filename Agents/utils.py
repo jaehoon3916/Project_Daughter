@@ -1,10 +1,5 @@
 import os
 from dotenv import load_dotenv
-import torch 
-
-def set_device_cuda():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    return device 
 
 def get_model_api(model_type: str):
     load_dotenv()

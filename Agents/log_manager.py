@@ -1,0 +1,67 @@
+import os
+import json
+import paths as paths
+
+def get_last_conversations_list(n = -1):
+    # ==== 최근 대화 불러오기 =====
+    # This function can be expanded to retrieve the last n conversations.
+    if os .path.exists(paths.CONVERSATION_LOG_PATH):
+        try:
+            with open(paths.CONVERSATION_LOG_PATH, "r", encoding="utf-8") as f:
+                    conv_history = json.load(f)
+        except Exception as e:
+            print(f"Error reading conversation log: {e}")
+            conv_history = []
+    else: 
+        conv_history = []
+    
+    if(n != -1):
+        return conv_history[-n:] if len(conv_history) >= n else conv_history
+    else:
+        return conv_history
+
+def get_last_conversations_formatted(n=10):
+    # ==== 최근 n 대화 불러오기 =====
+    conv_history = get_last_conversations_list()
+    last_convs = conv_history[-n:]
+    formatted_convs = f"<dialogue history>\n"
+    for log in last_convs: 
+        # 안전장치: 짝이 안 맞을 수도 있으니 체크
+        role = log.get("role", "unknown")
+        text = log["parts"][0]["text"]
+
+        if role == "user":
+            formatted_convs += f"User: {text}\n"
+        elif role == "model":
+            formatted_convs += f"Agent: {text}\n"
+    
+    return formatted_convs
+
+def add_last_conversation(user_name, user_input, response):
+    # ==== 대화 로그 추가 =====
+    # This function adds a new conversation log.
+    if os .path.exists(paths.CONVERSATION_LOG_PATH):
+        with open(paths.CONVERSATION_LOG_PATH, "r", encoding="utf-8") as f:
+            conv_history = json.load(f)
+    else: 
+        conv_history = []
+    
+    new_log = [{
+        "role": "user",
+        "parts": [
+            {
+                "text": user_input,
+            }
+        ]
+    }, {
+        "role": "model",
+        "parts": [
+            {
+                "text": response,
+            }
+        ]
+    }]
+    conv_history.extend(new_log)
+
+    with open(paths.CONVERSATION_LOG_PATH, "w", encoding="utf-8") as f:
+        json.dump(conv_history, f, ensure_ascii=False, indent=4)

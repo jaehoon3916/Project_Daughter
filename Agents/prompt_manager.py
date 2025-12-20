@@ -5,8 +5,12 @@
 import json
 import os
 import paths
+import Agents.log_manager as log_manager
 
-def get_prompt(user_name, user_input: str) -> str:
+# **개선사항**
+# 유저 아이디 기능 추가 필요!!!
+
+def get_prompt(user_name, user_id, user_input):
     # ==== 프롬프트 구성 =====
     # 프롬프트 = 메모리 검색 정보 + 대화 요약 + 최근 대화로그 + user input
     
@@ -17,14 +21,22 @@ def get_prompt(user_name, user_input: str) -> str:
     # context_summary = get_context_summary()
     
     # 3. 최근 대화로그
-    conv_history = get_last_conversations_formatted()
+    conv_history = log_manager.get_last_conversations_formatted()
     
-    prompt = conv_history + f"""
-    Make sure to follow the persona characteristics strictly.
-    Based on the memory, context and dialog history, 
-    respond to the given {user_name}'s input sentence. 
-    Your response must be in Korean.
-    {user_name}: {user_input}\n 
+    # 4. constraints and important notes
+    rules = """
+<Intructions>
+1. **Roleplay** as persona provided. 
+2. give answers based on the persona, <memory>, <context> and dialogue history.
+3. **Tone**: Keep your tone based on the persona.
+4. **Length & Detaail**: Provide detailed and comprehensive answers. Elaborate your thoughts.
+5. **Korean Language**: Respond in Korean only.\n
+"""
+
+    prompt = rules + conv_history + f"""
+<Current Turn>
+{user_name}: {user_input}
+Your response:
     """
     return prompt
 
@@ -34,41 +46,10 @@ def get_context_summary():
     summary = "This is a summary of past conversations."
     return summary
 
-def get_last_conversations_list(n = -1):
-    # ==== 최근 대화 불러오기 =====
-    # This function can be expanded to retrieve the last n conversations.
-    if os .path.exists(paths.CONVERSATION_LOG_PATH):
-        with open(paths.CONVERSATION_LOG_PATH, "r", encoding="utf-8") as f:
-            conv_history = json.load(f)
-    else: 
-        conv_history = []
-    
-    if(n != -1):
-        return conv_history[-n:] if len(conv_history) >= n else conv_history
-    else:
-        return conv_history
-
-def get_last_conversations_formatted(n=10):
-    # ==== 최근 n 대화 불러오기 =====
-    conv_history = get_last_conversations_list()
-    last_convs = conv_history[-n:]
-    formatted_convs = f"past {n} turns conversations: \n"
-    for i in range(0, len(last_convs), 2): # 2개씩(질문+답변) 묶어서 처리
-        # 안전장치: 짝이 안 맞을 수도 있으니 체크
-        if i+1 < len(last_convs):
-            user_msg = last_convs[i]['parts'][0]['text']   # User 대사 꺼내기
-            agent_msg = last_convs[i+1]['parts'][0]['text'] # Model 대사 꺼내기
-            
-            formatted_convs += f"User: {user_msg}\nAgent: {agent_msg}\n"
-    
-    return formatted_convs
-
 def get_persona():
     # ==== 페르소나 불러오기 =====
     if not os.path.exists(paths.PERSONA_PATH):
         persona_data = get_init_persona()
-        with open(paths.PERSONA_PATH, "w", encoding="utf-8") as f:
-            json.dump(persona_data, f, ensure_ascii=False, indent=4)
     else:
         with open(paths.PERSONA_PATH, "r", encoding="utf-8") as f:
             persona_data = json.load(f)
@@ -110,3 +91,4 @@ def get_init_persona():
         persona_data = json.load(f)
     with open(paths.PERSONA_PATH, "w", encoding="utf-8") as f:
         json.dump(persona_data, f, ensure_ascii=False, indent=4)
+    return persona_data
