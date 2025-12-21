@@ -1,0 +1,7 @@
+실행 방법
+1. root에 .env를 만들고 안에 
+GEMINI_API_KEY = api_key 
+입력.
+
+2. root directory 설정.
+3. python server.py 입력하여 서버 실행
