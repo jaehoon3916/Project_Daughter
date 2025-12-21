@@ -19,11 +19,13 @@ def run_model(user_input: str):
     prompt = prompt_manager.get_prompt(user_name = user_name, user_id = user_id, user_input = user_input)
 
     # 2. 프롬프트 주입 및 응답 받기
-    persona = prompt_manager.get_persona()
+    system_prompt = prompt_manager.get_system_instruction()
+    print(f"=== persona to model ===\n{system_prompt}\n=====================")
     print(f"=== prompt to model ===\n{prompt}\n=====================")
-    print(f"=== persona to model ===\n{persona}\n=====================")
-    raw_response =api_manager.get_model_response_google(persona = persona,
-                                                        prompt = prompt)
+    raw_response =api_manager.get_model_response_google(system_prompt = system_prompt,
+                                                        prompt = prompt,
+                                                        max_tokens = 2000,
+                                                        temperature = 0.9)
     # 3. 응답 후처리
     response = raw_response.strip()
 
