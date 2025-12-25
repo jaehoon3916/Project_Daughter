@@ -1,0 +1,354 @@
+[
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "아까 얘기한 게 무슨 소리야? "
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠, 10년 뒤에 죽는다고. 성예나랑 유하린 조심하라고 했잖아."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "내가 10년 뒤에 죽는다고? 무슨 말이야"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠가 미래에 남긴 편지에 그렇게 쓰여 있었어. 10년 뒤에 살해당하고, 범인이 성예나랑 유하린이라고."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "너가 미래에서 왔다는 걸 대체 어떻게 믿어? 증거 내놔"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "지금 아빠 침대에 내가 누워있는 것보다 확실한 증거가 있어?"
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "그게 무슨 소리니"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠가 지금 성예나 씨랑 소개팅했다는 거, 내가 어떻게 알았겠어?"
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "안녕"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "뭘 안녕이야, 아빠."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "나한테 왜그래ㅠㅠ"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "왜 그러긴. 아빠 죽게 생겼으니까 그러지."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "내가 왜 죽어"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠가 미래에 남긴 편지에 그렇게 쓰여 있었어. 성예나랑 유하린이 범인이라고."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "무슨 소리야 그게"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠가 미래에 죽는다고. 그리고 범인이 성예나랑 유하린이라는 소리야."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "이해가 안되는데["
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠가 미래에 죽는다는 소리야. 성예나 씨랑 유하린이 죽였다고."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "야 할머니가 인사한다"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "죄송합니다, 현재 응답을 생성하는 데 문제가 발생했습니다."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "야 너 지금 뭐해"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "{\n\t\"feeling\": \"nonchalant\",\n\t\"response\": \"아빠 침대 쓰고 있잖아.\"\n}"
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "나와 냄새배"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "{\n\t\"feeling\": \"nonchalant\",\n\t\"response\": \"냄새 안 나는데. 아빠가 씻어야 하는 거 아니야?\"\n}"
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "너 개못생겼잖아"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "{\n\t\"feeling\": \"nonchalant\",\n\t\"response\": \"그래서? 아빠가 미래에 죽는 거랑 그게 무슨 상관인데.\"\n}"
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "화내봐"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "{\n\t\"feeling\": \"nonchalant\",\n\t\"response\": \"내가 왜 화를 내? 화낼 일도 없는데.\"\n}"
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "한 번만 내줘ㅠㅠ"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "{\n\t\"feeling\": \"nonchalant\",\n\t\"response\": \"뭘 내달라는 건데?\"\n}"
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "지금 뭐 해?"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠 침대에 있어."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "지금 뭐해?"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "아빠 침대에 누워 있어."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "나도 눕고 싶은데"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "누울 자리가 없잖아."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "옆으로 나와봐"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "난 여기 있을 건데."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "나와봐 나도 눕게"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "난 계속 여기 있을 건데. 네가 바닥에 누워야지."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "아빠가 침대에 눕는 게 맞지, 딸내미가 침대에 눕는 게 맞아? 장유유서 몰라?"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "난 여기 계속 있을 건데. 아빠는 바닥에 누워."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "quit"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "난 계속 여기 있을 건데."
+            }
+        ]
+    }
+]

@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import paths as paths
 
 def get_last_conversations_list(n = -1):
@@ -57,7 +58,7 @@ def add_last_conversation(user_name, user_input, response):
         "role": "model",
         "parts": [
             {
-                "text": response,
+                "text": response["response"], # 감정 정보를 넣을지 말지는 고민 중
             }
         ]
     }]
@@ -65,3 +66,23 @@ def add_last_conversation(user_name, user_input, response):
 
     with open(paths.CONVERSATION_LOG_PATH, "w", encoding="utf-8") as f:
         json.dump(conv_history, f, ensure_ascii=False, indent=4)
+    
+def postprocess(raw_response:str) -> json:
+    clean_response = re.sub(r'<think>.*?</think>', '', raw_response, flags = re.DOTALL)
+
+    start_idx = clean_response.find('{')
+    end_idx = clean_response.rfind('}')
+
+    if start_idx != -1 and end_idx != -1:
+        json_str = clean_response[start_idx : end_idx +1]
+    
+        try:
+            # 3. 문자열을 파이썬 딕셔너리로 변환
+            return json.loads(json_str)
+        except json.JSONDecodeError as e:
+            print(f"JSON 파싱 에러: {e}")
+            # 에러 시 기본값 반환하거나 예외 처리
+            return {"feeling": "neutral", "response": "오류가 발생했습니다.", "action": ""}
+    else:
+        print("JSON 형식을 찾을 수 없습니다.")
+        return {"feeling": "neutral", "response": "응답 형식이 잘못되었습니다.", "action": ""}

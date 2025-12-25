@@ -19,7 +19,8 @@ async def chat_endpoint(request: ChatRequest):
     # ------------------------------------------
     
     return {
-        "reply": ai_response,
+        "feeling": ai_response["feeling"],
+        "reply": ai_response["response"]
     }
 
 if __name__ == "__main__":
