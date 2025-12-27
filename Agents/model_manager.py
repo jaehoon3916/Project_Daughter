@@ -1,0 +1,1 @@
+EMBEDDING_MODEL = 'dragonkue/BGE-m3-ko'
