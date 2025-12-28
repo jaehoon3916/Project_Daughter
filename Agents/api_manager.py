@@ -24,15 +24,17 @@ def get_model(model_version: str = "gemini-2.5-flash"):
 # google 사용 response
 def get_model_response_google(system_prompt, 
                               prompt, 
+                              model_name,
                               temperature = 0.9,
-                              max_tokens = 1000):
+                              max_tokens = 1000,
+                              json = False):
 
     # 1. get api key
     api_key = utils.get_model_api("google")
     genai.configure(api_key=api_key)
 
     # 2. set instance. This can be improved or functionalized later.
-    model_name = get_model("gemini-2.5-flash")
+    model_name = model
 
     # 3. create model instance 
     model = genai.GenerativeModel(
@@ -41,11 +43,14 @@ def get_model_response_google(system_prompt,
     )
 
     # 4. config setup 
-    config = genai.GenerationConfig(
-        temperature=temperature,
-        max_output_tokens=max_tokens,
-        # response_mime_type= "application/json"
-    )
+    config_params = {
+        "temperature":temperature,
+        "max_output_tokens": max_tokens
+    }
+    if json:
+        config_params["response_mime_type"] = "application/json"
+    config = genai.GenerationConfig(**config_params)
+        
     try: 
         # 5. generate response 
         response = model.generate_content(

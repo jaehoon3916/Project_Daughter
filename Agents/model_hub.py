@@ -23,8 +23,10 @@ def run_model(user_input: str):
     system_prompt = prompt_manager.get_system_instruction(user_name)
     print(f"=== persona to model ===\n{system_prompt}\n=====================")
     print(f"=== prompt to model ===\n{prompt}\n=====================")
+    model_name= api_manager.get_model("gemini-2.5-flash")
     raw_response =api_manager.get_model_response_google(system_prompt = system_prompt,
                                                         prompt = prompt,
+                                                        model_name = model_name,
                                                         max_tokens = 2000,
                                                         temperature = 0.9)
     # 3. 응답 후처리

@@ -1,140 +1,94 @@
-import json, uuid, os, torch, hashlib
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from sentence_transformers import SentenceTransformer
-from qdrant_client import QdrantClient
-from qdrant_client.models import PointStruct, VectorParams, Distance,Filter, FieldCondition, Range
+import Agents.prompt_manager as prompt_manager
+import Agents.log_manager as log_manager
+import Agents.api_manager as api_manager
+import Agents.Memories.memory_manager as memory_manager
+import Agents.model_manager as model_manager
 
-DB_PATH = "qdrant_bge"
+"""
+Docstring for Agents.Memories.memory_manager
 
-def set_embedding_model():
-    return SentenceTransformer("dragonkue/BGE-m3-ko")
+memory manager.
+메모리 관리
+Goals
+상황에 적합한 메모리 검색 및 응답에 반영. 
+- 1. 대화 생동감 확보
+- 2. 플레이어와의 정서적 교감 (추억, 기억 공유 등)
+- 3. (중요!) 정보 레벨에 따라 말하는 내용이 달라짐. 
 
-def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  batch_size= 0):
+기본적으로 플레이어가 대화, 증거 획득 등을 통해서 인게임 내에서 정보 레벨을 올릴 수 있음. 
+정보 레벨이 오르면 오를 수록 ai가 플레이어에게 제공하는 정보의 중요도가 증가함. 
+정보 레벨을 max를 찍고 모든 정보를 해금해서 진엔딩으로  향하는 루트를 확보하면 게임 승리. 
+정보레벨에 영향을 미치는 것들
+- 캐릭터 호감도
+- 단서 
+- 논리적 추론 (judged by AI)
 
-    points_to_upsert = []
+파이프라인
 
-    # get content from 'memory.json'
-    for idx, item in enumerate(new_dataset):
-        content = item.get('content')
 
-        point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, content))
+"""
 
-        vector = embedding_model.encode(content).tolist()
+def get_memory_for_response_prompt(user_input, target_persona, scene_num:int):
+    """
+    응답 생성 프롬프트에 필요한 메모리 검색 메소드.
+    Input Query
+    - scene info(공간 맥락 정보)
+    - dialog history (발화, 시간 맥락 정보)
+    - current user input 
 
-        payload = {
-            "level": item.get('level'),
-            "type": item.get('type'),
-            "contnet": content,
-            "scene_num": item.get('scene_num')
-        }
+    return 
+    - memory text
+    """
+    scene_info = "scene_info[scene_num]"
+    dialog_history = log_manager.get_last_conversations_formatted()
+    current_user_input = user_input
 
-        # set db row
-        point = PointStruct(
-            id = point_id,
-            vector = vector,
-            payload = payload,
-        )
-        points_to_upsert.append(point)
+    system_prompt = f"""
+당신은 검색 최적화 AI입니다.
+사용자의 입력을 보고, RAG 시스템(Vector DB) 검색에 사용할 수 있는 '완전하고 구체적인 하나의 질문(Query)'으로 변경하세요.
 
-        if batch_size != 0 and len(points_to_upsert) >= batch_size:
-            client.upsert(
-                collecton_name = collection_name,
-                points = points_to_upsert,
-                wait = True
-            )
-            print(f"Indexed {idx + 1}/{len(new_dataset)} items...")
-            points_to_upsert = []
+**규칙:**
+1. 대명사(그것, 그 사람, 거기)를 구체적인 명사로 바꾸세요. (`dialog_history` 참고)
+2. 질문의 배경이 되는 상황(`scene_info`)이 중요하다면 키워드로 포함하세요.
+3. 절대로 질문에 대해 직접 답변하지 마세요. 오직 '검색용 쿼리'만 출력하세요.
+4. 사용자의 의도가 명확하지 않다면, 가장 개연성 있는 의도로 구체화하세요.
 
-    if points_to_upsert:
-        client.upsert(
-            collecton_name = collection_name,
-            points = points_to_upsert,
-            wait = True
-        )
-        print(f"index completed : {len(new_dataset)}")
+"""
+    input_prompt = f"""
+**입력 데이터:**
+[scene_info]: {scene_info}
+[dialog history]: {dialog_history}
+[current_user_input]: {current_user_input}
 
-    return client
+**출력 포맷:**
+json 형식으로 출력해. 
+ex)
+{{
+    "text": (검색에 최적화된 한 문장)
+}}
 
-def database_check(collection_name, embedding_model):
-    client = QdrantClient(path = DB_PATH)
-
-    collections = client.get_collection()
-    collection_names = [c.name for c in collections.collections]
-
-    if collection_name in collection_names:
-        print(f"existing collection '{collection_name}'")
-    else:
-        client.create_collection(
-            collection_name = collection_name,
-            vectors_config = VectorParams(size = 1024, distance = Distance.COSINE)
-        )
-        print(f" new collection '{collection_name}'")
-        
-        data_path = "memory.json"
-        with open(data_path, 'r', encoding='utf-8') as f:
-            dataset = json.load(f)
-        client = add_memory_to_db(collection_name, dataset, client, embedding_model, batch_size = 10 )
-
-def get_rag_response(collection_name, client,emb_model, query, top_k = 3, level_threshold = -1):
-    '''
-    나중에 agent toolkit을 활용해서 agent보고 이 메소드의 level_threshold를 정하라고 할 수도 있을 듯.
-    아니면 일단 다 뽑아보고 뽑은 것 중에 ai보고 상황에 맞게 따로 선별하라고 하던가. 
-    중요한 건, 유저의 응답 정보 및 맥락, 메모리 상황에 따라 이 레벨 threshold가 다르게 책정되어야 한다는 것. 
-    즉, 유저의 현재 정보 수준, 관계도 등 환경적 요소에 따라 ai가 제공하는 정보의 레벨이 달라진다는 것!
-    Docstring for search_memory
+입력데이터를 바탕으로 memory RAG에 검색할 input query를 생성해줘.
+Your Output: 
+"""
     
-    :param collection_name: Description
-    :param client: Description
-    :param emb_model: Description
-    :param query: Description
-    :param top_k: Description
-    :param level_threshold: Description
-    '''
-    query_vector = emb_model.encode(query).tolist()
-
-    query_filter = None
-    if level_threshold != -1:
-        query_filter = Filter(
-            must = [
-                FieldCondition(
-                    key = "level",
-                    range = Range(
-                        lte = level_threshold
-                    )
-                )
-            ]
-        )
+    # get input query from LLM
+    model_name = api_manager.get_model("gemini-2.5-flash-lite") 
+    input_query = api_manager.get_model_response_google(system_prompt,
+                                          input_prompt,
+                                          model_name,
+                                          temperature = 0.5,
+                                          json = True)
     
-    search_response = client.query_points(
-        collection_name = collection_name,
-        query = query_vector,
-        query_filter = query_filter,
-        limit = top_k,
-        with_payload = True
-    )
+    print("==== input query ====")
+    print(input_query)
+    model_name = model_manager.EMBEDDING_MODEL
+    client = memory_manager.database_check(collection_name = target_persona, embedding_model = model_name)
     
-    results = []
-    for hit in search_response.points:
-        results.append({
-            "score": hit.score,
-            "level": hit.payload.get('level', ''),
-            "type": hit.payload.get("type", ''),
-            "content": hit.payload.get("content", ''),
-            "scene_num": hit.payload.get("scene_num", '')
-        })
-    return results
+    retrieved_mem, context = memory_manager.search_memory(collection_name = target_persona,
+                                                          client =  client,
+                                                          emb_model = model_name,
+                                                          query = input_query)
+    print("==== retrieved memory ====")
+    print(context)
 
-
-def search_memory(collection_name, client, emb_model, query, top_k = 3, level_threshold = -1):
-    retrieved_mem = get_rag_response(collection_name, client,emb_model, query, top_k, level_threshold)
-
-    context_parts = []
-    for i, memory in enumerate(retrieved_mem, 1):
-        context_parts.append(f"[기억 {i}]")
-        context_parts.append(f"level: {memory['level']}")
-        context_parts.append(f"type: {memory["type"]}")
-        context_parts.append(f"content: {memory["content"]}")
-        context_parts.append(f"scene_num: {memory["scene_num"]}")
-    
-    context = "\n".join(context_parts)
-    return retrieved_mem, context
+    return context
