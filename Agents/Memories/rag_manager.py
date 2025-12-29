@@ -1,14 +1,14 @@
-import json, uuid, os, torch, hashlib
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from sentence_transformers import SentenceTransformer
+import json, uuid
+# from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+# from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams, Distance,Filter, FieldCondition, Range
 import google.generativeai as genai
 
 DB_PATH = "qdrant_bge"
 
-def set_embedding_model():
-    return SentenceTransformer("dragonkue/BGE-m3-ko")
+# def set_embedding_model():
+#     return SentenceTransformer("dragonkue/BGE-m3-ko")
 
 def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  batch_size= 0):
 
@@ -20,7 +20,14 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
 
         point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, content))
 
-        vector = embedding_model.encode(content).tolist()
+        # vector = embedding_model.encode(content).tolist()
+        emb_response = genai.embed_content(
+            model = "models/text-embedding-004",
+            content=content,
+            task_type = 'retrieval_query"'
+        )
+
+        vector = emb_response["embedding"]
 
         payload = {
             "level": item.get('level'),
