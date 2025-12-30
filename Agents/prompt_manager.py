@@ -7,6 +7,7 @@ import os
 import paths
 import Agents.log_manager as log_manager
 import Agents.context_manager as context_manager
+import Agents.Memories.memory_manager as memory_manager
 
 # **개선사항**
 # 유저 아이디 기능 추가 필요!!!
@@ -44,6 +45,7 @@ def get_system_instruction(user_name):
     instruction = get_prompt_rules()
     persona = get_persona()
     scenario = context_manager.get_scenario(user_name)
+    memory = memory_manager.get_memory_for_response_prompt
     system_instruction = f"""
 {instruction}
 {scenario}

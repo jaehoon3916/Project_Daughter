@@ -16,10 +16,11 @@ def run_model(user_input: str):
     user_name = "재훈"
     user_id = "001"
 
-    # 1. 사용자 응답 전처리
-    prompt = prompt_manager.get_prompt(user_name = user_name, user_id = user_id, user_input = user_input)
+    # 1. 사용자 응답 전처리 - 사용자의 말로부터 observation 정보 도출. 
+    
 
     # 2. 프롬프트 주입 및 응답 받기
+    prompt = prompt_manager.get_prompt(user_name = user_name, user_id = user_id, user_input = user_input)
     system_prompt = prompt_manager.get_system_instruction(user_name)
     print(f"=== persona to model ===\n{system_prompt}\n=====================")
     print(f"=== prompt to model ===\n{prompt}\n=====================")
@@ -36,6 +37,9 @@ def run_model(user_input: str):
 
     # 4. 응답 저장
     log_manager.add_last_conversation(user_name, user_input, response)
+
+    # 5. reflection on certain threshold
     
+
     # return response 
     return response

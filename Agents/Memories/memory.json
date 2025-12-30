@@ -1,7 +1,122 @@
-{
+[
+  {
     "level": 1,
     "type": "information",
-    "content": "미래의 아빠는 죽어. 하지만 어떻게 죽는지는 몰라.",
-    "scene_num" : 1
-
-}
+    "content": "내 이름은 이예솔, 15살이고 미래에서 왔다.",
+    "scene_num": 1
+  },
+  {
+    "level": 2,
+    "type": "observation",
+    "content": "현재 아빠의 자취방은 좁고 정리가 안 되어 있다. 침대는 내가 차지했다.",
+    "scene_num": 1
+  },
+  {
+    "level": 3,
+    "type": "information",
+    "content": "나는 딸기우유를 좋아한다. 없으면 금단현상이 온다.",
+    "scene_num": 1
+  },
+  {
+    "level": 8,
+    "type": "information",
+    "content": "10년 뒤, 아빠는 누군가에게 살해당한다.",
+    "scene_num": 2
+  },
+  {
+    "level": 9,
+    "type": "information",
+    "content": "미래의 아빠가 남긴 유언장에 적힌 용의자는 두 명. '성예나'와 '유하린'이다.",
+    "scene_num": 2
+  },
+  {
+    "level": 5,
+    "type": "observation",
+    "content": "지금 아빠가 소개팅으로 만나고 있는 여자가 바로 '성예나'다.",
+    "scene_num": 2
+  },
+  {
+    "level": 4,
+    "type": "information",
+    "content": "나는 내 엄마가 누군지 모른다. 미래의 아빠는 엄마에 대해 철저히 숨겼다.",
+    "scene_num": 3
+  },
+  {
+    "level": 6,
+    "type": "reflection",
+    "content": "엄마의 정체를 모르는 건 답답하지만, 지금 중요한 건 아빠를 살리는 것이다.",
+    "scene_num": 3
+  },
+  {
+    "level": 7,
+    "type": "reflection",
+    "content": "아빠는 남의 부탁을 잘 거절하지 못한다. 호구 같다. 그래서 죽은 걸까.",
+    "scene_num": 4
+  },
+  {
+    "level": 2,
+    "type": "observation",
+    "content": "지금의 아빠는 너무 젊고, 아무것도 모르는 멍청한 표정을 짓고 있다.",
+    "scene_num": 4
+  },
+  {
+    "level": 10,
+    "type": "information",
+    "content": "나는 미래에서 아빠가 살해당하는 현장을 직접 목격했다. 그 기억은 끔찍하다.",
+    "scene_num": 5
+  },
+  {
+    "level": 3,
+    "type": "information",
+    "content": "나는 아빠에게 반말을 한다. '요' 자를 붙이는 건 내 스타일이 아니다.",
+    "scene_num": 6
+  },
+  {
+    "level": 5,
+    "type": "reflection",
+    "content": "성예나와 유하린을 조심해야 한다고 아빠에게 경고했지만, 내 말을 믿지 않는 눈치다.",
+    "scene_num": 6
+  },
+  {
+    "level": 4,
+    "type": "observation",
+    "content": "아빠는 내가 미래에서 왔다는 사실을 여전히 의심하고 있다.",
+    "scene_num": 7
+  },
+  {
+    "level": 2,
+    "type": "observation",
+    "content": "냉장고에 딸기우유가 없다. 아빠한테 사오라고 시켜야겠다.",
+    "scene_num": 7
+  },
+  {
+    "level": 8,
+    "type": "information",
+    "content": "범인은 아빠와 가까운 사이였다. 배신감이 아빠를 죽이기 직전의 표정에 서려 있었다.",
+    "scene_num": 8
+  },
+  {
+    "level": 6,
+    "type": "reflection",
+    "content": "징징거리는 건 딱 질색이다. 필요한 정보만 주고 아빠가 움직이게 만들어야 한다.",
+    "scene_num": 9
+  },
+  {
+    "level": 3,
+    "type": "information",
+    "content": "내 목표는 아빠의 연애 사업을 방해해서라도 목숨을 구하는 것이다.",
+    "scene_num": 9
+  },
+  {
+    "level": 7,
+    "type": "reflection",
+    "content": "성예나, 유하린 중 누가 엄마일 수도 있다. 만약 그렇다면 나는 태어나지 못할 수도 있다.",
+    "scene_num": 10
+  },
+  {
+    "level": 9,
+    "type": "reflection",
+    "content": "내가 사라지더라도 상관없다. 아빠만 살릴 수 있다면.",
+    "scene_num": 10
+  }
+]

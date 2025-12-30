@@ -92,3 +92,11 @@ Your Output:
     print(context)
 
     return context
+
+
+def observe():
+    """
+    관찰 정보. user input을 llm에게 줘서 관찰 정보 획득. 
+    """
+    # prompt_path = ""
+    # with open("")

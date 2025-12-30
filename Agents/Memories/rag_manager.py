@@ -24,7 +24,7 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
         emb_response = genai.embed_content(
             model = "models/text-embedding-004",
             content=content,
-            task_type = 'retrieval_query"'
+            task_type = 'retrieval_query'
         )
 
         vector = emb_response["embedding"]
@@ -32,7 +32,7 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
         payload = {
             "level": item.get('level'),
             "type": item.get('type'),
-            "contnet": content,
+            "content": content,
             "scene_num": item.get('scene_num')
         }
 
@@ -46,7 +46,7 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
 
         if batch_size != 0 and len(points_to_upsert) >= batch_size:
             client.upsert(
-                collecton_name = collection_name,
+                collection_name = collection_name,
                 points = points_to_upsert,
                 wait = True
             )
@@ -55,7 +55,7 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
 
     if points_to_upsert:
         client.upsert(
-            collecton_name = collection_name,
+            collection_name = collection_name,
             points = points_to_upsert,
             wait = True
         )
@@ -66,7 +66,7 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
 def database_check(collection_name, embedding_model):
     client = QdrantClient(path = DB_PATH)
 
-    collections = client.get_collection()
+    collections = client.get_collections()
     collection_names = [c.name for c in collections.collections]
 
     if collection_name in collection_names:
@@ -74,7 +74,7 @@ def database_check(collection_name, embedding_model):
     else:
         client.create_collection(
             collection_name = collection_name,
-            vectors_config = VectorParams(size = 1024, distance = Distance.COSINE)
+            vectors_config = VectorParams(size = 768, distance = Distance.COSINE)
         )
         print(f" new collection '{collection_name}'")
         
@@ -101,7 +101,7 @@ def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_
     result = genai.embed_content(
         model = "models/text-embedding-004",
         content=query,
-        task_type = 'retrieval_query"'
+        task_type = 'retrieval_query'
     )
 
     # query_vector = emb_model.encode(query).tolist()
@@ -161,9 +161,9 @@ def search_memory(collection_name, client, emb_model, query, top_k = 5, level_th
     for i, memory in enumerate(retrieved_mem, 1):
         context_parts.append(f"[기억 {i}]")
         context_parts.append(f"level: {memory['level']}")
-        context_parts.append(f"type: {memory["type"]}")
-        context_parts.append(f"content: {memory["content"]}")
-        context_parts.append(f"scene_num: {memory["scene_num"]}")
+        context_parts.append(f"type: {memory['type']}")
+        context_parts.append(f"content: {memory['content']}")
+        context_parts.append(f"scene_num: {memory['scene_num']}")
     
     context = "\n".join(context_parts)
     return retrieved_mem, context
