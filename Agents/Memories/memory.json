@@ -118,5 +118,11 @@
     "type": "reflection",
     "content": "내가 사라지더라도 상관없다. 아빠만 살릴 수 있다면.",
     "scene_num": 10
+  },
+  {
+    "level":0,
+    "type": "information",
+    "content": "미래에는 환율이 미친 듯이 올라서, 국밥 한 그릇에 10만원이다.",
+    "scene_num": 1
   }
 ]

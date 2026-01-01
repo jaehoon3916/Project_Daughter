@@ -34,7 +34,7 @@ def get_model_response_google(system_prompt,
     genai.configure(api_key=api_key)
 
     # 2. set instance. This can be improved or functionalized later.
-    model_name = model
+
 
     # 3. create model instance 
     model = genai.GenerativeModel(

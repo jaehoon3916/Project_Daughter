@@ -4,6 +4,7 @@ import json, uuid
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams, Distance,Filter, FieldCondition, Range
 import google.generativeai as genai
+import Agents.utils as utils
 
 DB_PATH = "qdrant_bge"
 
@@ -19,18 +20,22 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
         content = item.get('content')
 
         point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, content))
+        
+        # 1. get api key
+        api_key = utils.get_model_api("google")
+        genai.configure(api_key=api_key)
 
         # vector = embedding_model.encode(content).tolist()
         emb_response = genai.embed_content(
-            model = "models/text-embedding-004",
+            model = embedding_model,
             content=content,
-            task_type = 'retrieval_query'
+            task_type = 'retrieval_document' # 모델 임베딩에는 무조건 document type으로! (google 임베딩의 경우) (query와 answer doc으 ㄴ형식이 많이 다르니까)
         )
 
         vector = emb_response["embedding"]
 
         payload = {
-            "level": item.get('level'),
+            "level": int(item.get('level', 0)),
             "type": item.get('type'),
             "content": content,
             "scene_num": item.get('scene_num')
@@ -78,10 +83,12 @@ def database_check(collection_name, embedding_model):
         )
         print(f" new collection '{collection_name}'")
         
-        data_path = "memory.json"
+        data_path = "Agents/Memories/memory.json"
         with open(data_path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
         client = add_memory_to_db(collection_name, dataset, client, embedding_model, batch_size = 10 )
+    
+    return client
 
 def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_threshold = -1):
     '''
@@ -107,6 +114,7 @@ def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_
     # query_vector = emb_model.encode(query).tolist()
     query_vector = result["embedding"]
 
+    # 검색 필터 지정. level threshold 이하 레벨의 정보만 검색해오도록.
     query_filter = None
     if level_threshold != -1:
         query_filter = Filter(
@@ -120,6 +128,7 @@ def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_
             ]
         )
     
+    # **RAG 검색**
     search_response = client.query_points(
         collection_name = collection_name,
         query = query_vector,
@@ -128,6 +137,7 @@ def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_
         with_payload = True
     )
     
+    # payload 정리 및 result list로 후처리
     results = []
     for hit in search_response.points:
         results.append({
@@ -155,8 +165,12 @@ def search_memory(collection_name, client, emb_model, query, top_k = 5, level_th
     retrieved_mem: json type retrieved memory
     context: text type retrieved memory
     """
+    # 검색 결과 받아오기
     retrieved_mem = get_rag_response(collection_name, client,emb_model, query, top_k, level_threshold)
+    print("==== retrieved memeory ====")
+    print(retrieved_mem)
 
+    # 검색 결과 후처리 (string)
     context_parts = []
     for i, memory in enumerate(retrieved_mem, 1):
         context_parts.append(f"[기억 {i}]")

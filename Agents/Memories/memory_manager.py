@@ -1,7 +1,7 @@
 import Agents.prompt_manager as prompt_manager
 import Agents.log_manager as log_manager
 import Agents.api_manager as api_manager
-import Agents.Memories.memory_manager as memory_manager
+import Agents.Memories.rag_manager as rag_manager
 import Agents.model_manager as model_manager
 
 """
@@ -28,7 +28,7 @@ Goals
 
 """
 
-def get_memory_for_response_prompt(user_input, target_persona, scene_num:int):
+def get_memory_for_response_prompt(user_input, target_persona, scene_num:int, client):
     """
     응답 생성 프롬프트에 필요한 메모리 검색 메소드.
     Input Query
@@ -68,6 +68,7 @@ ex)
 }}
 
 입력데이터를 바탕으로 memory RAG에 검색할 input query를 생성해줘.
+user_input: {current_user_input}
 Your Output: 
 """
     
@@ -81,10 +82,10 @@ Your Output:
     
     print("==== input query ====")
     print(input_query)
-    model_name = model_manager.EMBEDDING_MODEL
-    client = memory_manager.database_check(collection_name = target_persona, embedding_model = model_name)
+    # model_name = model_manager.EMBEDDING_MODEL
+    # client = rag_manager.database_check(collection_name = target_persona, embedding_model = model_name)
     
-    retrieved_mem, context = memory_manager.search_memory(collection_name = target_persona,
+    retrieved_mem, context = rag_manager.search_memory(collection_name = target_persona,
                                                           client =  client,
                                                           emb_model = model_name,
                                                           query = input_query)
@@ -94,9 +95,10 @@ Your Output:
     return context
 
 
-def observe():
-    """
-    관찰 정보. user input을 llm에게 줘서 관찰 정보 획득. 
-    """
-    # prompt_path = ""
-    # with open("")
+# def observe():
+#     """
+#     관찰 정보. user input을 llm에게 줘서 관찰 정보 획득. 
+#     """
+#     prompt_path = "Prompts/observation_prompt.txt"
+#     with open(prompt_path, 'r', 'utf-8') as f:
+        

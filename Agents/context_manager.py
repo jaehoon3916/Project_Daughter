@@ -117,3 +117,4 @@ f{user_name}: 한국대학교 2학년.
 #S3 (현재상황)
 ({user_name}이 예솔에게 구체적인 내용에 대해서 물어봄)\n
 """
+    return scenario

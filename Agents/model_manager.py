@@ -1,1 +1,1 @@
-EMBEDDING_MODEL = 'dragonkue/BGE-m3-ko'
+EMBEDDING_MODEL = 'models/text-embedding-004'
