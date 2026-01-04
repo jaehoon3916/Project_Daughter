@@ -16,6 +16,7 @@ def main():
     while True:
         user_input = input("나: ")
         if(user_input.lower() in ["exit", "quit"]):
+            model_hub.close_session()
             print("대화를 종료합니다.")
             sys .exit(0)
 

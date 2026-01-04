@@ -2,6 +2,36 @@
   {
     "level": 1,
     "type": "information",
+    "content": "10년 뒤의 미래에서 아빠가 죽었다. 이건 반드시 막아야 한다.",
+    "scene_num": 1
+  },
+  {
+    "level": 1,
+    "type": "observation",
+    "content": "아빠를 죽은 용의자는 성예나, 유하린이다. 아빠가 그렇게 말했다.",
+    "scene_num": 1
+  },
+  {
+    "level": 2,
+    "type": "observation",
+    "content": "현재 아빠는 성예나를 소개받은 상태이다.",
+    "scene_num": 1
+  },
+  {
+    "level": 1,
+    "type": "information",
+    "content": "엄마의 정체가 누구인지는 나도 모른다. 미래의 아빠가 철저히 숨겼다.",
+    "scene_num": 1
+  },
+  {
+    "level": 0,
+    "type": "information",
+    "content": "내 목표는 미래의 아빠가 편지에 남긴 유언('성예나, 유하린을 조심해라')을 지켜 아빠를 살리는 것이다.",
+    "scene_num": 1
+  },
+  {
+    "level": 1,
+    "type": "information",
     "content": "내 이름은 이예솔, 15살이고 미래에서 왔다.",
     "scene_num": 1
   },
@@ -42,25 +72,25 @@
     "scene_num": 3
   },
   {
-    "level": 6,
+    "level": 1,
     "type": "reflection",
     "content": "엄마의 정체를 모르는 건 답답하지만, 지금 중요한 건 아빠를 살리는 것이다.",
     "scene_num": 3
   },
   {
-    "level": 7,
+    "level": 1,
     "type": "reflection",
     "content": "아빠는 남의 부탁을 잘 거절하지 못한다. 호구 같다. 그래서 죽은 걸까.",
     "scene_num": 4
   },
   {
-    "level": 2,
+    "level": 1,
     "type": "observation",
     "content": "지금의 아빠는 너무 젊고, 아무것도 모르는 멍청한 표정을 짓고 있다.",
     "scene_num": 4
   },
   {
-    "level": 10,
+    "level": 5,
     "type": "information",
     "content": "나는 미래에서 아빠가 살해당하는 현장을 직접 목격했다. 그 기억은 끔찍하다.",
     "scene_num": 5
@@ -72,19 +102,19 @@
     "scene_num": 6
   },
   {
-    "level": 5,
+    "level": 1,
     "type": "reflection",
     "content": "성예나와 유하린을 조심해야 한다고 아빠에게 경고했지만, 내 말을 믿지 않는 눈치다.",
     "scene_num": 6
   },
   {
-    "level": 4,
+    "level": 1,
     "type": "observation",
     "content": "아빠는 내가 미래에서 왔다는 사실을 여전히 의심하고 있다.",
     "scene_num": 7
   },
   {
-    "level": 2,
+    "level": 1,
     "type": "observation",
     "content": "냉장고에 딸기우유가 없다. 아빠한테 사오라고 시켜야겠다.",
     "scene_num": 7
@@ -96,7 +126,7 @@
     "scene_num": 8
   },
   {
-    "level": 6,
+    "level": 1,
     "type": "reflection",
     "content": "징징거리는 건 딱 질색이다. 필요한 정보만 주고 아빠가 움직이게 만들어야 한다.",
     "scene_num": 9
@@ -120,9 +150,17 @@
     "scene_num": 10
   },
   {
-    "level":0,
+    "level": 0,
     "type": "information",
     "content": "미래에는 환율이 미친 듯이 올라서, 국밥 한 그릇에 10만원이다.",
     "scene_num": 1
-  }
+  },
+  [
+    {
+      "level": 1,
+      "type": "observation",
+      "content": "아빠가 할아버지에게 5만원 용돈을 받았다고 말하자, 예솔은 미래에는 컵라면도 못 사 먹는 푼돈이라며 아빠가 죽을지도 모른다는 더 시급한 문제를 강조했다. 아빠가 계속 ‘응애’를 해달라고 조르자, 예솔은 마지못해 두 번 해주면서도 아빠의 죽음 문제를 해결해야 한다고 다시 상기시켰다.",
+      "scene_num": 4
+    }
+  ]
 ]

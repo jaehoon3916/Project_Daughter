@@ -11,6 +11,7 @@ import Agents.prompt_manager as prompt_manager
 import Agents.log_manager as log_manager
 import Agents.Memories.rag_manager as rag_manager
 import Agents.model_manager as model_manager
+import Agents.Memories.memory_manager as memory_mangager
 import json
 
 
@@ -22,7 +23,7 @@ def run_model(user_input: str):
     target_persona = "Daughter"
 
     # 0. check database
-    client = rag_manager.database_check(collection_name = "", embedding_model = embedding_model)
+    client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
     # 1. 사용자 응답 전처리 - 사용자의 말로부터 observation 정보 도출.
     # 감정 추출, ()에 입력된 유저의 행동 분석? << 이건 걍 메인 응답 프롬프트에 통합할 수도? 
@@ -49,8 +50,24 @@ def run_model(user_input: str):
     # 4. 응답 저장
     log_manager.add_last_conversation(user_name, user_input, response)
 
-    # 5. reflection on certain threshold
-    
-
     # return response 
     return response
+
+def close_session():
+    user_name = "재훈"
+    user_id = "001"
+    embedding_model = model_manager.EMBEDDING_MODEL
+    scene_num = 4
+    target_persona = "Daughter"
+
+    client = rag_manager.database_check(collection_name = target_persona, 
+                                        embedding_model = embedding_model)
+
+    # 0. 세션 종료 시 대화 내용 메모리에 저장
+    memory_mangager.save_conversation_to_memory(collection_name = target_persona, 
+                                                client = client, 
+                                                embedding_model = embedding_model, 
+                                                scene_num = scene_num)
+    # log_manager.clear_conversation_logs()
+
+    # 1. reflection

@@ -21,10 +21,10 @@ def get_last_conversations_list(n = -1):
     else:
         return conv_history
 
-def get_last_conversations_formatted(n=10):
+def get_last_conversations_formatted(n=-1):
     # ==== 최근 n 대화 불러오기 =====
     conv_history = get_last_conversations_list()
-    last_convs = conv_history[-n:]
+    last_convs = conv_history[-n:] if n != -1 else conv_history
     formatted_convs = f"<dialogue history>\n"
     for log in last_convs: 
         # 안전장치: 짝이 안 맞을 수도 있으니 체크

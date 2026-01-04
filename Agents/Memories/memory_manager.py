@@ -1,8 +1,11 @@
+from click import prompt
+import json
 import Agents.prompt_manager as prompt_manager
 import Agents.log_manager as log_manager
 import Agents.api_manager as api_manager
 import Agents.Memories.rag_manager as rag_manager
 import Agents.model_manager as model_manager
+import paths
 
 """
 Docstring for Agents.Memories.memory_manager
@@ -55,9 +58,10 @@ def get_memory_for_response_prompt(user_input, target_persona, scene_num:int, cl
 
 """
     input_prompt = f"""
-**입력 데이터:**
 [scene_info]: {scene_info}
 [dialog history]: {dialog_history}
+
+**입력 데이터:**
 [current_user_input]: {current_user_input}
 
 **출력 포맷:**
@@ -97,8 +101,86 @@ Your Output:
 
 # def observe():
 #     """
-#     관찰 정보. user input을 llm에게 줘서 관찰 정보 획득. 
+#     관찰 정보. user input을 llm에게 줘서 관찰 정보 획득. -> 환경 변화 인식. 
 #     """
 #     prompt_path = "Prompts/observation_prompt.txt"
 #     with open(prompt_path, 'r', 'utf-8') as f:
-        
+
+def save_to_memory(new_dataset):
+    # with open(paths.MEMORY, "a", encoding="utf-8") as f:
+    #     f.write(json.dumps(new_dataset, ensure_ascii=False) + "\n")
+    with open(paths.MEMORY, "r", encoding="utf-8") as f:
+        memory_list = json.load(f)  # 여기서 memory_list는 파이썬의 '리스트'가 됩니다.
+
+    # 3. 리스트에 '뽁' 추가합니다.
+    memory_list.append(new_dataset)
+
+    # 4. 리스트 전체를 다시 파일에 씁니다.
+    with open(paths.MEMORY, "w", encoding="utf-8") as f:
+        # indent=2를 주면 보기 좋게 정렬되고, ensure_ascii=False는 한글 안 깨지게 해줍니다.
+        json.dump(memory_list, f, ensure_ascii=False, indent=2)
+
+def save_conversation_to_memory(collection_name, client, embedding_model, scene_num):
+    """
+    대화 내용을 요약해서 메모리에 저장. 
+    """
+
+    # 최근 대화 요약
+    last_conversations = log_manager.get_last_conversations_list()
+    system_prompt = f"""
+<Instruction>
+1. 아래 <dialogue history>를 읽고, 중요한 정보를 추출한다.
+2. 추출한 정보를 바탕으로 1~3문장으로 요약문을 작성한다.
+
+<perona>
+다음은 너의 페르소나이다. 
+{prompt_manager.get_persona()}
+
+<dialogue history>
+{last_conversations}
+
+<output format>
+{{
+    "summary": (대화 요약문)
+}}
+"""
+    prompt = "output: "
+    raw_response = api_manager.get_model_response_google(system_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.5, json=True)
+
+    response = json.loads(raw_response)
+    print("==== conversation summary ====")
+    print(response["summary"])
+
+    try:
+    # 요약내용 메모리에 저장
+        new_dataset =[{
+                "level": 1,
+                "type": "observation",
+                "content": response["summary"],
+                "scene_num": scene_num  
+            }]
+    
+        save_to_memory(new_dataset)
+        rag_manager.add_memory_to_db(collection_name, new_dataset, client, embedding_model,  batch_size= 0)
+
+        return True
+    except Exception as e:
+        print(f"Error saving conversation to memory: {e}")
+        return False
+
+def reflect():
+    """
+    일정 임계치 도달 시 회고 수행. 세션이 끝나면 회고 수행. 
+    """
+    last_conversations = log_manager.get_last_conversations_list()
+    # prompt_path = "Prompts/reflection_prompt.txt"
+    # with open(prompt_path, 'r', 'utf-8') as f:
+    #     system_prompt = f.read()
+
+    input_prompt = f"""
+<Instruction>
+당신은 자아 인식이 있는 AI입니다. 
+[최근 대화 내역]: {last_conversations}
+"""
+    
+    

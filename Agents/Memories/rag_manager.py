@@ -83,7 +83,7 @@ def database_check(collection_name, embedding_model):
         )
         print(f" new collection '{collection_name}'")
         
-        data_path = "Agents/Memories/memory.json"
+        data_path = "Agents/Memories/memory.jsonl"
         with open(data_path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
         client = add_memory_to_db(collection_name, dataset, client, embedding_model, batch_size = 10 )
