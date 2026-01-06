@@ -7,6 +7,12 @@
   },
   {
     "level": 1,
+    "type": "goal",
+    "content": "미래의 아빠가 편지에 남긴 유언('성예나, 유하린을 조심해라')을 지켜 아빠를 살리는 것.",
+    "scene_num": 1
+  }
+  {
+    "level": 1,
     "type": "observation",
     "content": "아빠를 죽은 용의자는 성예나, 유하린이다. 아빠가 그렇게 말했다.",
     "scene_num": 1

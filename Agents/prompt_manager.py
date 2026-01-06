@@ -12,7 +12,7 @@ import Agents.Memories.memory_manager as memory_manager
 # **개선사항**
 # 유저 아이디 기능 추가 필요!!!
 
-def get_prompt(user_name, user_id, user_input):
+def get_prompt(user_name, user_id, user_input, target_persona):
     # ==== 프롬프트 구성 =====
     # 프롬프트 = 메모리 검색 정보 + 대화 요약 + 최근 대화로그 + user input
     
@@ -23,7 +23,7 @@ def get_prompt(user_name, user_id, user_input):
     # context_summary = get_context_summary()
     
     # 3. 최근 대화로그
-    conv_history = log_manager.get_last_conversations_formatted()
+    conv_history, _ = log_manager.get_last_conversations_formatted(user_name,target_persona)
     
     prompt = conv_history + f"""
 <Current User Input>
@@ -45,7 +45,11 @@ def get_system_instruction(user_name, user_input, target_persona, scene_num, cli
     instruction = get_prompt_rules()
     persona = get_persona()
     scenario = context_manager.get_scenario(user_name)
-    memory = memory_manager.get_memory_for_response_prompt(user_input = user_input, target_persona = target_persona, scene_num = scene_num, client = client)
+    memory = memory_manager.get_memory_for_response_prompt(user_name = user_name,
+                                                           user_input = user_input, 
+                                                           target_persona = target_persona, 
+                                                           scene_num = scene_num, 
+                                                           client = client)
     system_instruction = f"""
 {instruction}
 {memory}

@@ -19,11 +19,11 @@ def get_last_conversations_list(n = -1):
     if(n != -1):
         return conv_history[-n:] if len(conv_history) >= n else conv_history
     else:
-        return conv_history
+        return conv_history, len(conv_history)
 
-def get_last_conversations_formatted(n=-1):
+def get_last_conversations_formatted(user_name, target_persona, n=-1):
     # ==== 최근 n 대화 불러오기 =====
-    conv_history = get_last_conversations_list()
+    conv_history, _ = get_last_conversations_list()
     last_convs = conv_history[-n:] if n != -1 else conv_history
     formatted_convs = f"<dialogue history>\n"
     for log in last_convs: 
@@ -32,11 +32,11 @@ def get_last_conversations_formatted(n=-1):
         text = log["parts"][0]["text"]
 
         if role == "user":
-            formatted_convs += f"User: {text}\n"
+            formatted_convs += f"{user_name}: {text}\n"
         elif role == "model":
-            formatted_convs += f"Agent: {text}\n"
+            formatted_convs += f"{target_persona}: {text}\n"
     
-    return formatted_convs
+    return formatted_convs, len(last_convs)
 
 def add_last_conversation(user_name, user_input, response):
     # ==== 대화 로그 추가 =====
@@ -86,3 +86,19 @@ def postprocess(raw_response:str) -> json:
     else:
         print("JSON 형식을 찾을 수 없습니다.")
         return {"feeling": "neutral", "response": "응답 형식이 잘못되었습니다.", "action": ""}
+
+def clear_conversation_log():
+    # ==== 대화 로그 초기화 =====
+    log_backup()
+    with open(paths.CONVERSATION_LOG_PATH, "w", encoding="utf-8") as f:
+        json.dump([], f, ensure_ascii=False, indent=4)
+
+def log_backup():
+    # ==== 대화 로그 백업 =====
+    if os .path.exists(paths.CONVERSATION_LOG_PATH):
+        with open(paths.CONVERSATION_LOG_PATH, "r", encoding="utf-8") as f:
+            conv_history = json.load(f)
+        
+        backup_path = paths.CONVERSATION_LOG_PATH.replace(".json", "_backup.json")
+        with open(backup_path, "w", encoding="utf-8") as f:
+            json.dump(conv_history, f, ensure_ascii=False, indent=4)

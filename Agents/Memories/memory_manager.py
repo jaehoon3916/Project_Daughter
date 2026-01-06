@@ -30,8 +30,9 @@ Goals
 
 
 """
+CONV_TURN_LIMIT = 50
 
-def get_memory_for_response_prompt(user_input, target_persona, scene_num:int, client):
+def get_memory_for_response_prompt(user_name, user_input, target_persona, scene_num:int, client):
     """
     응답 생성 프롬프트에 필요한 메모리 검색 메소드.
     Input Query
@@ -43,18 +44,19 @@ def get_memory_for_response_prompt(user_input, target_persona, scene_num:int, cl
     - memory text
     """
     scene_info = "scene_info[scene_num]"
-    dialog_history = log_manager.get_last_conversations_formatted()
+    dialog_history, _ = log_manager.get_last_conversations_formatted(user_name, target_persona)
     current_user_input = user_input
 
     system_prompt = f"""
 당신은 검색 최적화 AI입니다.
-사용자의 입력을 보고, RAG 시스템(Vector DB) 검색에 사용할 수 있는 '완전하고 구체적인 하나의 질문(Query)'으로 변경하세요.
+<dialog history> 및 user_input을 보고, {target_persona}의 RAG 메모리 검색에 사용할 수 있는 '완전하고 구체적인 하나의 질문(Query)'으로 변경해.
 
-**규칙:**
-1. 대명사(그것, 그 사람, 거기)를 구체적인 명사로 바꾸세요. (`dialog_history` 참고)
-2. 질문의 배경이 되는 상황(`scene_info`)이 중요하다면 키워드로 포함하세요.
-3. 절대로 질문에 대해 직접 답변하지 마세요. 오직 '검색용 쿼리'만 출력하세요.
-4. 사용자의 의도가 명확하지 않다면, 가장 개연성 있는 의도로 구체화하세요.
+<Instruction>
+1.<dialogue history> 및 user_input으로부터 **대화 맥락** 및 **중요한 정보**를 추출해.
+2.추출한 대화맥락과 중요한 정보를 바탕으로 검색 쿼리를 작성해.
+3.검색 쿼리는 최대한 대화 맥락을 설명해야 하며, **중요한 정보**를 포함해야 해.
+4.절대로 질문에 대해 직접 답변하지 마. 오직 '검색용 쿼리'만 출력해.
+
 
 """
     input_prompt = f"""
@@ -126,14 +128,19 @@ def save_conversation_to_memory(collection_name, client, embedding_model, scene_
     """
 
     # 최근 대화 요약
-    last_conversations = log_manager.get_last_conversations_list()
+    last_conversations, conv_length= log_manager.get_last_conversations_list()
+    if conv_length < CONV_TURN_LIMIT:
+        return
+    target_persona = collection_name
     system_prompt = f"""
 <Instruction>
-1. 아래 <dialogue history>를 읽고, 중요한 정보를 추출한다.
-2. 추출한 정보를 바탕으로 1~3문장으로 요약문을 작성한다.
+1. 아래 <dialogue history>를 읽고, 중요한 정보 및 대화 맥락을 추출한다.
+2. 추출한 중요한 정보 및 대화맥락을 바탕으로 1~3문장으로 <dialogue history>의 요약문을 작성한다.
+3. 요약문은 {target_persona} 기억의 input_query로 사용된다.
+4. 요약문은 diaglogue history를 충실히 설명해야 하며, 명확해야 한다.
 
 <perona>
-다음은 너의 페르소나이다. 
+다음은 {target_persona}의 페르소나이다. 
 {prompt_manager.get_persona()}
 
 <dialogue history>
@@ -162,7 +169,10 @@ def save_conversation_to_memory(collection_name, client, embedding_model, scene_
     
         save_to_memory(new_dataset)
         rag_manager.add_memory_to_db(collection_name, new_dataset, client, embedding_model,  batch_size= 0)
-
+        
+        # 대화 로그 초기화
+        log_manager.clear_conversation_log()
+        
         return True
     except Exception as e:
         print(f"Error saving conversation to memory: {e}")
@@ -172,7 +182,7 @@ def reflect():
     """
     일정 임계치 도달 시 회고 수행. 세션이 끝나면 회고 수행. 
     """
-    last_conversations = log_manager.get_last_conversations_list()
+    last_conversations, _ = log_manager.get_last_conversations_list()
     # prompt_path = "Prompts/reflection_prompt.txt"
     # with open(prompt_path, 'r', 'utf-8') as f:
     #     system_prompt = f.read()

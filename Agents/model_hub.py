@@ -14,6 +14,7 @@ import Agents.model_manager as model_manager
 import Agents.Memories.memory_manager as memory_mangager
 import json
 
+CONV_TURN_LIMIT = 50
 
 def run_model(user_input: str):
     user_name = "재훈"
@@ -32,7 +33,10 @@ def run_model(user_input: str):
     
 
     # 2. 프롬프트 주입 및 응답 받기
-    prompt = prompt_manager.get_prompt(user_name = user_name, user_id = user_id, user_input = user_input)
+    prompt = prompt_manager.get_prompt(user_name = user_name, 
+                                       user_id = user_id, 
+                                       user_input = user_input,
+                                       target_persona = target_persona)
     system_prompt = prompt_manager.get_system_instruction(user_name, user_input, target_persona, scene_num, client)
     print(f"=== persona to model ===\n{system_prompt}\n=====================")
     print(f"=== prompt to model ===\n{prompt}\n=====================")
@@ -49,7 +53,7 @@ def run_model(user_input: str):
 
     # 4. 응답 저장
     log_manager.add_last_conversation(user_name, user_input, response)
-
+    
     # return response 
     return response
 
@@ -60,6 +64,7 @@ def close_session():
     scene_num = 4
     target_persona = "Daughter"
 
+
     client = rag_manager.database_check(collection_name = target_persona, 
                                         embedding_model = embedding_model)
 
@@ -68,6 +73,5 @@ def close_session():
                                                 client = client, 
                                                 embedding_model = embedding_model, 
                                                 scene_num = scene_num)
-    # log_manager.clear_conversation_logs()
 
     # 1. reflection
