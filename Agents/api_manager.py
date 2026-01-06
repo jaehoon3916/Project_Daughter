@@ -1,6 +1,7 @@
 from openai import OpenAI
 import google.generativeai as genai
 import Agents.prompt_manager as prompt_manager
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import Agents.utils as utils
 
 # 모델 버전 관리
@@ -50,12 +51,21 @@ def get_model_response_google(system_prompt,
     if json:
         config_params["response_mime_type"] = "application/json"
     config = genai.GenerationConfig(**config_params)
-        
+    
+    # 일단 ai safety는 다 풀어놓음.
+    safety_settings = {
+        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+    }
+
     try: 
         # 5. generate response 
         response = model.generate_content(
             prompt,
-            generation_config = config
+            generation_config = config,
+            safety_settings = safety_settings
         )
     except Exception as e:
         print(f"Error generating response from Google Gemini: {e}")
