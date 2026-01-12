@@ -178,19 +178,71 @@ def save_conversation_to_memory(collection_name, client, embedding_model, scene_
         print(f"Error saving conversation to memory: {e}")
         return False
 
-def reflect():
+def reflect(collection_name, client, embedding_model):
     """
-    일정 임계치 도달 시 회고 수행. 세션이 끝나면 회고 수행. 
+    # 걍 일단 대화내역을 나이브하게 쭉 다 저장해서, 프롬프트로 줘 버리자. 
+    # 그리고 세션 종료 시 모델에게 오늘 대화에 대한 피드백을 요청.
+    # 파이프라인
+    # 1. 정보 추출 -> 이때 정보는 개수 제한을 두지 말고, 독립적으로 n개의 정보를 추출하도록 종용하여 리스트 json 형식으로 반환
+    # 2. 추출된 각 정보들을 쿼리 검색 후 관련 기억 수집. 
+    # 3. 수집된 기억들과 추출된 정보를 바탕으로 LLM 활용, 새로운 인사이트 도출. 
+    # 4. 모든 정보에 대해 반복, 모두 메모리에 저장. 
     """
-    last_conversations, _ = log_manager.get_last_conversations_list()
-    # prompt_path = "Prompts/reflection_prompt.txt"
-    # with open(prompt_path, 'r', 'utf-8') as f:
-    #     system_prompt = f.read()
 
-    input_prompt = f"""
+    # 1. 최근 대화 로그로부터 정보 추출
+    last_conversations, conv_length= log_manager.get_last_conversations_list()
+    if conv_length < CONV_TURN_LIMIT:
+        return
+    target_persona = collection_name
+    system_prompt = f"""
 <Instruction>
-당신은 자아 인식이 있는 AI입니다. 
-[최근 대화 내역]: {last_conversations}
+1. 아래 <dialogue history>를 읽고, 중요한 정보 및 대화 맥락을 추출한다.
+2. 각 정보는 서로 독립적이어야 한다. 서로 관련이 있거나 연관되는 내용은 하나의 정보로 정리한다. 
+3. 각 정보는 {target_persona} 기억의 input_query로 사용된다.
+4. 출력은 <output>의 format을 반드시 따른다. 
+
+<perona>
+다음은 {target_persona}의 페르소나이다. 
+{prompt_manager.get_persona()}
+
+<output format>
+{{
+    "extracted_info": [
+        {{
+            "1": (중요한 정보 1)
+        }},
+        {{
+            "2": (중요한 정보 2)
+        }},
+        ...
+    ]
+}}
 """
+    prompt = "output: "
+    raw_response = api_manager.get_model_response_google(system_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.2, json=True)
+    try:
+        info_list = json.loads(raw_response).get("extracted_info", [])
+    except Exception as e:
+        print(f"Error parsing extracted info: {e}")
+        return
+    
+    # 2. 추출된 정보를 바탕으로 관련 기억 검색 및 수집
+    for i, info in info_list:
+        print(f"==== processing extracted info {i} ====")
+        print(info)
+        # model_name = model_manager.EMBEDDING_MODEL
+        # client = rag_manager.database_check(collection_name = target_persona, embedding_model = model_name)
+        retrieved_mem, context = rag_manager.search_memory(collection_name = target_persona,
+                                                            client = client,
+                                                            emb_model = embedding_model,
+                                                            query = info)
+        print("==== retrieved memory for reflection ====")
+        print(context)
+
+        # 3. 수집된 기억들과 추출된 정보를 바탕으로 새로운 인사이트 도출
+        reflection_prompt = f"""
+
+    
+
     
     

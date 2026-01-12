@@ -23,7 +23,7 @@ def run_model(user_input: str):
     scene_num = 4
     target_persona = "Daughter"
 
-    # 0. check database
+    # 0. check database 
     client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
     # 1. 사용자 응답 전처리 - 사용자의 말로부터 observation 정보 도출.
@@ -74,4 +74,5 @@ def close_session():
                                                 embedding_model = embedding_model, 
                                                 scene_num = scene_num)
 
-    # 1. reflection
+
+
