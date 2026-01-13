@@ -90,7 +90,7 @@ def database_check(collection_name, embedding_model):
     
     return client
 
-def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_threshold = -1):
+def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_threshold = -1)-> list:
     '''
     나중에 agent toolkit을 활용해서 agent보고 이 메소드의 level_threshold를 정하라고 할 수도 있을 듯.
     아니면 일단 다 뽑아보고 뽑은 것 중에 ai보고 상황에 맞게 따로 선별하라고 하던가. 

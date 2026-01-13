@@ -115,7 +115,8 @@ def save_to_memory(new_dataset):
         memory_list = json.load(f)  # 여기서 memory_list는 파이썬의 '리스트'가 됩니다.
 
     # 3. 리스트에 '뽁' 추가합니다.
-    memory_list.append(new_dataset)
+    for new_data in new_dataset:
+        memory_list.append(new_data)
 
     # 4. 리스트 전체를 다시 파일에 씁니다.
     with open(paths.MEMORY, "w", encoding="utf-8") as f:
@@ -178,7 +179,7 @@ def save_conversation_to_memory(collection_name, client, embedding_model, scene_
         print(f"Error saving conversation to memory: {e}")
         return False
 
-def reflect(collection_name, client, embedding_model):
+def reflect(collection_name, persona, client, embedding_model, scene_num):
     """
     # 걍 일단 대화내역을 나이브하게 쭉 다 저장해서, 프롬프트로 줘 버리자. 
     # 그리고 세션 종료 시 모델에게 오늘 대화에 대한 피드백을 요청.
@@ -205,6 +206,9 @@ def reflect(collection_name, client, embedding_model):
 다음은 {target_persona}의 페르소나이다. 
 {prompt_manager.get_persona()}
 
+<dialogue history>
+{last_conversations}
+
 <output format>
 {{
     "extracted_info": [
@@ -227,7 +231,8 @@ def reflect(collection_name, client, embedding_model):
         return
     
     # 2. 추출된 정보를 바탕으로 관련 기억 검색 및 수집
-    for i, info in info_list:
+    reflection_list = []
+    for i, info in enumerate(info_list):
         print(f"==== processing extracted info {i} ====")
         print(info)
         # model_name = model_manager.EMBEDDING_MODEL
@@ -241,6 +246,58 @@ def reflect(collection_name, client, embedding_model):
 
         # 3. 수집된 기억들과 추출된 정보를 바탕으로 새로운 인사이트 도출
         reflection_prompt = f"""
+너는 주어진 <memory>와 <current info>를 바탕으로 새로운 인사이트를 도출하는 LLM이다. 
+
+이것은 너의 페르소나이다.
+<persona>
+{persona}
+
+<Instruction>
+1. 당신의 페르소나를 바탕으로, <current info>와 각 <memory>의 관계를 제시하라.
+2. 제시된 관계 속에서 도출할 수 있는 새로운 인사이트가 있다면, 구체적으로 설명하라.
+3. 인사이트에서 비롯되는 너의 감정을 <memory> 및 <current info>로부터 도출하여 추가하라.
+
+<memory>
+{context}
+
+<current info>
+{info}
+
+<output>
+{{
+    "insight": (도출된 인사이트),
+    "related_memory": (관련 기억 내용),
+    "current_info": (현재 정보 내용),
+    "reflection_emotion": (인사이트로부터 도출된 감정)
+}}
+"""
+        
+        prompt = f"output: "
+        raw_response = api_manager.get_model_response_google(reflection_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.3, json=True)
+        try:
+            reflection = json.loads(raw_response)
+            print("==== reflection result ====")
+            print(reflection)
+
+            # 4. 도출된 인사이트 메모리에 저장
+            new_dataset =[{
+                    "level": 1,
+                    "type": "reflection",
+                    "content": f"{reflection['insight']}",
+                    "scene_num": scene_num 
+                }]
+
+            reflection_list.append(new_dataset)
+        except Exception as e:
+            print(f"Error parsing reflection result: {e}")
+            continue
+    
+    save_to_memory(reflection_list)  
+    rag_manager.add_memory_to_db(collection_name, reflection_list, client, embedding_model,  batch_size= 0)
+
+    return reflection_list
+
+
 
     
 

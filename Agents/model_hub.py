@@ -63,16 +63,21 @@ def close_session():
     embedding_model = model_manager.EMBEDDING_MODEL
     scene_num = 4
     target_persona = "Daughter"
+    persona = prompt_manager.get_persona(target_persona)
 
 
     client = rag_manager.database_check(collection_name = target_persona, 
                                         embedding_model = embedding_model)
-
+    
     # 0. 세션 종료 시 대화 내용 메모리에 저장
-    memory_mangager.save_conversation_to_memory(collection_name = target_persona, 
-                                                client = client, 
-                                                embedding_model = embedding_model, 
-                                                scene_num = scene_num)
+    memory_mangager.reflect(collection_name = target_persona, 
+                            persona = persona,
+                            client = client, 
+                            embedding_model = embedding_model, 
+                            scene_num = scene_num)
+    # 대화 로그 초기화
+    log_manager.clear_conversation_log()
+                                            
 
 
 

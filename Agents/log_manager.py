@@ -17,7 +17,7 @@ def get_last_conversations_list(n = -1):
         conv_history = []
     
     if(n != -1):
-        return conv_history[-n:] if len(conv_history) >= n else conv_history
+        return conv_history[-n:] if len(conv_history) >= n else conv_history, len(conv_history)
     else:
         return conv_history, len(conv_history)
 

@@ -1,4 +1,3 @@
-from openai import OpenAI
 import google.generativeai as genai
 import Agents.prompt_manager as prompt_manager
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
