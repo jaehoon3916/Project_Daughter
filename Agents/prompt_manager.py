@@ -43,7 +43,7 @@ def get_context_summary():
 def get_system_instruction(user_name, user_input, target_persona, scene_num, client):
     # ==== 시스템 인스트럭션 불러오기 =====
     instruction = get_prompt_rules()
-    persona = get_persona()
+    persona = get_persona(target_persona)
     scenario = context_manager.get_scenario(user_name)
     memory = memory_manager.get_memory_for_response_prompt(user_name = user_name,
                                                            user_input = user_input, 
@@ -59,13 +59,14 @@ def get_system_instruction(user_name, user_input, target_persona, scene_num, cli
 
 
 
-def get_persona():
+def get_persona(target_persona):
     # ==== 페르소나 불러오기 =====
-    if not os.path.exists(paths.PERSONA_PATH):
-        persona_data = get_init_persona()
-    else:
-        with open(paths.PERSONA_PATH, "r", encoding="utf-8") as f:
-            persona_data = json.load(f)
+    if target_persona == "Daughter":
+        if not os.path.exists(paths.PERSONA_PATH):
+            persona_data = get_init_persona()
+        else:
+            with open(paths.PERSONA_PATH, "r", encoding="utf-8") as f:
+                persona_data = json.load(f)
     
     persona_description = f"""
 [persona_data]

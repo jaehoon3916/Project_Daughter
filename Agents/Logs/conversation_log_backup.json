@@ -3,7 +3,7 @@
         "role": "user",
         "parts": [
             {
-                "text": "야 뭐하냐"
+                "text": "안녕"
             }
         ]
     },
@@ -11,7 +11,39 @@
         "role": "model",
         "parts": [
             {
-                "text": "아빠 침대에 누워 있어."
+                "text": "응."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "말 짧은 거 봐라"
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "원래 이래."
+            }
+        ]
+    },
+    {
+        "role": "user",
+        "parts": [
+            {
+                "text": "오늘 너무 힘들었어."
+            }
+        ]
+    },
+    {
+        "role": "model",
+        "parts": [
+            {
+                "text": "그래서."
             }
         ]
     }

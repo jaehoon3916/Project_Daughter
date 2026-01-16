@@ -1,4 +1,3 @@
-from click import prompt
 import json
 import Agents.prompt_manager as prompt_manager
 import Agents.log_manager as log_manager
@@ -93,7 +92,6 @@ Your Output:
     
     retrieved_mem, context = rag_manager.search_memory(collection_name = target_persona,
                                                           client =  client,
-                                                          emb_model = model_name,
                                                           query = input_query)
     print("==== retrieved memory ====")
     print(context)
@@ -142,7 +140,7 @@ def save_conversation_to_memory(collection_name, client, embedding_model, scene_
 
 <perona>
 다음은 {target_persona}의 페르소나이다. 
-{prompt_manager.get_persona()}
+{prompt_manager.get_persona(target_persona)}
 
 <dialogue history>
 {last_conversations}
@@ -179,7 +177,7 @@ def save_conversation_to_memory(collection_name, client, embedding_model, scene_
         print(f"Error saving conversation to memory: {e}")
         return False
 
-def reflect(collection_name, persona, client, embedding_model, scene_num):
+def reflect(collection_name, persona, client, scene_num):
     """
     # 걍 일단 대화내역을 나이브하게 쭉 다 저장해서, 프롬프트로 줘 버리자. 
     # 그리고 세션 종료 시 모델에게 오늘 대화에 대한 피드백을 요청.
@@ -192,19 +190,19 @@ def reflect(collection_name, persona, client, embedding_model, scene_num):
 
     # 1. 최근 대화 로그로부터 정보 추출
     last_conversations, conv_length= log_manager.get_last_conversations_list()
-    if conv_length < CONV_TURN_LIMIT:
-        return
+    # if conv_length < CONV_TURN_LIMIT:
+    #     return
     target_persona = collection_name
     system_prompt = f"""
 <Instruction>
-1. 아래 <dialogue history>를 읽고, 중요한 정보 및 대화 맥락을 추출한다.
-2. 각 정보는 서로 독립적이어야 한다. 서로 관련이 있거나 연관되는 내용은 하나의 정보로 정리한다. 
+1. 아래 <dialogue history>를 읽고, 중요한 정보를 추출한다.
+2. 각 정보는 서로 독립적이어야 한다. 동일한 주제의 내용은 하나의 정보로 정리한다. 
 3. 각 정보는 {target_persona} 기억의 input_query로 사용된다.
 4. 출력은 <output>의 format을 반드시 따른다. 
 
-<perona>
+<persona>
 다음은 {target_persona}의 페르소나이다. 
-{prompt_manager.get_persona()}
+{prompt_manager.get_persona(target_persona)}
 
 <dialogue history>
 {last_conversations}
@@ -221,6 +219,28 @@ def reflect(collection_name, persona, client, embedding_model, scene_num):
         ...
     ]
 }}
+
+example)
+1) 
+input: 
+"user": "뭐하냐"
+"daughter": "침대에 누워있는데."
+"user": "그래? 나 치킨 사왔는데 치킨 좀 먹을래?"
+"daughter": "응."
+"user": "뻥이야. 안 사왔어."
+"daughter": "진짠 줄 알았네."
+"user": "에이, 재미없어"
+"daughter": "나는 재밌었는데."
+"user": "에라이... 야, 오늘 밖에 비오니까 괜히 나가지 마라."
+"daughter": "알겠어."
+
+output:
+[{{
+        "1": "아빠가 치킨을 사왔다며 먹을지 물었다. Daughter는 그러겠다고 했지만, 그것은 거짓말이었다. Daughter는 무덤덤하게 답했고 그 반응에 아빠는 실망했다."
+    }},
+    {{
+        "2": "밖에 비가 온다."
+}}
 """
     prompt = "output: "
     raw_response = api_manager.get_model_response_google(system_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.2, json=True)
@@ -230,16 +250,19 @@ def reflect(collection_name, persona, client, embedding_model, scene_num):
         print(f"Error parsing extracted info: {e}")
         return
     
+    print("==== extracted info list ====")
+    print(info_list)
+
     # 2. 추출된 정보를 바탕으로 관련 기억 검색 및 수집
     reflection_list = []
     for i, info in enumerate(info_list):
         print(f"==== processing extracted info {i} ====")
         print(info)
+        info
         # model_name = model_manager.EMBEDDING_MODEL
         # client = rag_manager.database_check(collection_name = target_persona, embedding_model = model_name)
         retrieved_mem, context = rag_manager.search_memory(collection_name = target_persona,
                                                             client = client,
-                                                            emb_model = embedding_model,
                                                             query = info)
         print("==== retrieved memory for reflection ====")
         print(context)
@@ -280,12 +303,12 @@ def reflect(collection_name, persona, client, embedding_model, scene_num):
             print(reflection)
 
             # 4. 도출된 인사이트 메모리에 저장
-            new_dataset =[{
+            new_dataset ={
                     "level": 1,
                     "type": "reflection",
                     "content": f"{reflection['insight']}",
                     "scene_num": scene_num 
-                }]
+                }
 
             reflection_list.append(new_dataset)
         except Exception as e:
@@ -293,7 +316,10 @@ def reflect(collection_name, persona, client, embedding_model, scene_num):
             continue
     
     save_to_memory(reflection_list)  
-    rag_manager.add_memory_to_db(collection_name, reflection_list, client, embedding_model,  batch_size= 0)
+    rag_manager.add_memory_to_db(collection_name, reflection_list, client, batch_size= 0)
+
+    # 대화 로그 초기화
+    log_manager.clear_conversation_log()
 
     return reflection_list
 

@@ -5,13 +5,14 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams, Distance,Filter, FieldCondition, Range
 import google.generativeai as genai
 import Agents.utils as utils
+import Agents.model_manager as model_manager
 
 DB_PATH = "qdrant_bge"
 
 # def set_embedding_model():
 #     return SentenceTransformer("dragonkue/BGE-m3-ko")
 
-def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  batch_size= 0):
+def add_memory_to_db(collection_name, new_dataset, client, batch_size= 0):
 
     points_to_upsert = []
 
@@ -27,7 +28,7 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model,  bat
 
         # vector = embedding_model.encode(content).tolist()
         emb_response = genai.embed_content(
-            model = embedding_model,
+            model = model_manager.EMBEDDING_MODEL,
             content=content,
             task_type = 'retrieval_document' # 모델 임베딩에는 무조건 document type으로! (google 임베딩의 경우) (query와 answer doc으 ㄴ형식이 많이 다르니까)
         )
@@ -90,7 +91,7 @@ def database_check(collection_name, embedding_model):
     
     return client
 
-def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_threshold = -1)-> list:
+def get_rag_response(collection_name, client, query, top_k = 5, level_threshold = -1)-> list:
     '''
     나중에 agent toolkit을 활용해서 agent보고 이 메소드의 level_threshold를 정하라고 할 수도 있을 듯.
     아니면 일단 다 뽑아보고 뽑은 것 중에 ai보고 상황에 맞게 따로 선별하라고 하던가. 
@@ -105,6 +106,10 @@ def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_
     :param top_k: Description
     :param level_threshold: Description
     '''
+
+    # if query.type == dict:
+    #     query = query["content"]
+
     result = genai.embed_content(
         model = "models/text-embedding-004",
         content=query,
@@ -150,7 +155,7 @@ def get_rag_response(collection_name, client,emb_model, query, top_k = 5, level_
     return results
 
 
-def search_memory(collection_name, client, emb_model, query, top_k = 5, level_threshold = -1):
+def search_memory(collection_name, client, query, top_k = 5, level_threshold = -1):
     """
     Docstring for search_memory
     
@@ -166,7 +171,7 @@ def search_memory(collection_name, client, emb_model, query, top_k = 5, level_th
     context: text type retrieved memory
     """
     # 검색 결과 받아오기
-    retrieved_mem = get_rag_response(collection_name, client,emb_model, query, top_k, level_threshold)
+    retrieved_mem = get_rag_response(collection_name, client, query, top_k, level_threshold)
     print("==== retrieved memeory ====")
     print(retrieved_mem)
 

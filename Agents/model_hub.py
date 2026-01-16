@@ -16,15 +16,12 @@ import json
 
 CONV_TURN_LIMIT = 50
 
-def run_model(user_input: str):
-    user_name = "재훈"
-    user_id = "001"
-    embedding_model = model_manager.EMBEDDING_MODEL
-    scene_num = 4
-    target_persona = "Daughter"
-
-    # 0. check database 
-    client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
+def run_model(user_input: str, user_name: str, user_id: str, target_persona: str, scene_num: int, client: str):
+    user_name = user_name
+    user_id = user_id
+    client = client
+    scene_num = scene_num
+    target_persona = target_persona
 
     # 1. 사용자 응답 전처리 - 사용자의 말로부터 observation 정보 도출.
     # 감정 추출, ()에 입력된 유저의 행동 분석? << 이건 걍 메인 응답 프롬프트에 통합할 수도? 
@@ -57,26 +54,18 @@ def run_model(user_input: str):
     # return response 
     return response
 
-def close_session():
+def close_session(user_name: str, user_id, target_persona: str, scene_num: int, client: str):
     user_name = "재훈"
     user_id = "001"
-    embedding_model = model_manager.EMBEDDING_MODEL
     scene_num = 4
     target_persona = "Daughter"
     persona = prompt_manager.get_persona(target_persona)
 
-
-    client = rag_manager.database_check(collection_name = target_persona, 
-                                        embedding_model = embedding_model)
-    
     # 0. 세션 종료 시 대화 내용 메모리에 저장
     memory_mangager.reflect(collection_name = target_persona, 
                             persona = persona,
                             client = client, 
-                            embedding_model = embedding_model, 
                             scene_num = scene_num)
-    # 대화 로그 초기화
-    log_manager.clear_conversation_log()
                                             
 
 
