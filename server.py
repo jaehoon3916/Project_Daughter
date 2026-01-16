@@ -14,22 +14,37 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
-    print(f"유니티에서 온 메시지: {request.message}")
+    print(f"유니티에서 온 메시지: {request.response}")
+    # response, affinity
     
-    user_name = "재훈"
-    user_id = "001"
+    
+    # user_name = "재훈"
+    # user_id = "001"
+    # scene_num = 4
+    # target_persona = "Daughter"
+    user_name = request.name
+    user_id = '001'
+    scene_num = request.scene_num
+    target_persona = str(request.target_persona)
+    affinity = request.affinity
+    response = request.response
+    session = request.session
     embedding_model = model_manager.EMBEDDING_MODEL
-    scene_num = 4
-    target_persona = "Daughter"
     client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
-    # --- AI 처리 구간 ---
-    ai_response = model_hub.run_model(request.message, user_name, user_id, target_persona, scene_num, client)
+    if session == 0:
+        # 세션이 0이면 새로운 세션 시작
+        model_hub.open_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
+    elif session == 1:
+        # --- AI 처리 구간 ---
+        ai_response = model_hub.run_model(response, user_name, user_id, target_persona, affinity, scene_num, client)
+    else:
+        model_hub.close_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
     # ------------------------------------------
-    
     return {
-        "feeling": ai_response["feeling"],
-        "reply": ai_response["response"]
+        "response": ai_response["response"],
+        "affinity_change": ai_response["affinity_delta"],
+        "emotion": ai_response["emotion"]
     }
 
 if __name__ == "__main__":

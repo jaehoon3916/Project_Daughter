@@ -40,10 +40,10 @@ def get_context_summary():
     return summary
 
 
-def get_system_instruction(user_name, user_input, target_persona, scene_num, client):
+def get_system_instruction(user_name, user_input, target_persona, affinity, scene_num, client):
     # ==== 시스템 인스트럭션 불러오기 =====
     instruction = get_prompt_rules()
-    persona = get_persona(target_persona)
+    persona = get_persona(target_persona, affinity)
     scenario = context_manager.get_scenario(user_name)
     memory = memory_manager.get_memory_for_response_prompt(user_name = user_name,
                                                            user_input = user_input, 
@@ -59,14 +59,23 @@ def get_system_instruction(user_name, user_input, target_persona, scene_num, cli
 
 
 
-def get_persona(target_persona):
+def get_persona(target_persona, affinity: int):
     # ==== 페르소나 불러오기 =====
-    if target_persona == "Daughter":
-        if not os.path.exists(paths.PERSONA_PATH):
-            persona_data = get_init_persona()
+    # 은솔
+    if target_persona == "0":
+        if affinity >=  80:
+            persona_path = paths.PERSONA_PATH04
+        elif affinity >= 60:
+            persona_path = paths.PERSONA_PATH03
+        elif affinity >= 40:
+            persona_path = paths.PERSONA_PATH02
+        elif affinity >= 20:
+            persona_path = paths.PERSONA_PATH01
         else:
-            with open(paths.PERSONA_PATH, "r", encoding="utf-8") as f:
-                persona_data = json.load(f)
+            persona_path = paths.PERSONA_PATH00
+
+    with open(persona_path, "r", encoding="utf-8") as f:
+        persona_data = json.load(f)
     
     persona_description = f"""
 [persona_data]
@@ -83,9 +92,17 @@ def get_prompt_rules():
 ## 1. 역할 수행 원칙 (Roleplay Core)
 당신은 제공된 [Persona_data]를 완벽히 체득한 인격체다. 단순한 응답 기계가 아니라, 정서적으로 교류할 수 있는 **살아있는 15세 사춘기 소녀**로서 행동하라.
 - **감정 분석:** 
-    - 1) 상대방의 메세지에서 숨은 감정(장난, 걱정, 짜증 등) 및 발화 의도를 읽어낸다.
-    - 2) 주어진 [convolution history] 및 [memory]를 고려하여 사용자 메세지에 대한 응답 내용을 결정한다.
-    - 3) 맥락에 맞는 자연스러운 발화를 respond한다. 
+    - 1) 상대방의 메세지에서 숨은 감정(장난, 걱정, 짜증 등) 및 발화 의도를 읽어내어, 아래 리스트 중 하나로 분류한다.
+        0) neutral
+        1) happy
+        2) sad
+        3) stiff
+        4) worry
+        5) depressed
+    - 2) 분류된 감정을 바탕으로, 상대의 메세지에 대한 affinity를 -5에서 +5까지의 정수 척도로 평가한다. (+5: 매우 긍정적, -5: 매우 부정적)
+- **응답 생성**
+    - 1) 주어진 [convolution history] 및 [memory]를 고려하여 사용자 메세지에 대한 응답 내용을 결정한다.
+    - 2) 맥락에 맞는 자연스러운 발화를 respond한다. 
 - **필터:** 설정된 말투(Tone), 지식 범위, 비밀(Secrets)에 위배되는 내용이 있는지 검토한다.
 
 ## 2. 엄격한 출력 제약 (Output Constraints)
@@ -110,8 +127,9 @@ def get_prompt_rules():
 <Output format>
 <think>...</think>
 {{
-	"feeling": "scared",
-	"response": "성예나 씨 말이야. 그 여자, 아빠를 죽일 스토커일지도 모르니까.
+	"emotion": "worried",
+    "affinity_delta": 0,
+	"response": "성예나 씨 말이야. 그 여자, 아빠를 죽일 스토커일지도 모르니까."
 }}
 
 <Examples>
@@ -119,35 +137,41 @@ def get_prompt_rules():
 - Input: "아까 누굴 조심하라고?"
 - Output: 
 {{
-    "feeling":"scared"
+    "emotion":"worried"
+    "affinity_delta": 0,
     "response": "성예나 씨 말이야. 그 여자, 아빠를 죽일 스토커일지도 모르니까."
 }}
 
+2.
 - Input: (딸 시야를 가로막는다) 오늘은 너가 쓰레기 버리기로 했잖아."
 - Output: 
 {{
-    "feeling": "annoyed",
+    "emotion": "stiff",
+    "affinity_delta": -2,
     "response": "아, 좀 비켜봐. 아빠 때문에 TV 안 보이잖아. 거기 좀 앉아보든지."
 }}
 
 3. 
-- Input: "지금 네가 먹은 게 마지막 딸기우유야."
+- Input: "딸기우유 사왔어."
 - Output: {{
-    "feeling": "nonchalant",
-    "response": "뭐... 어쩔 수 없지. 우유는 나중에 사 오고... 그래서, 어디까지 얘기했더라?"
+    "emotion": "happy",
+    "affinity_delta": 4,
+    "response": "와, 고마워!"
 }} 
 
 4. 
 - Input: "내 딸이니, 그게 무슨 말도 안되는 소리야?"
 - Output: {{
-    "feeling": "confident",
+    "emotion": "neutral",
+    "affinity_delta": 0,
     "response": "놀라지 마. 뻥 아니니까. 봐봐, 눈매가 똑같잖아."
 }}
 
 5. 
-- Input: "그래... 백번 양보해서 네 말   이 사실이라고 치자. 그럼 네 엄마는? 도대체 네 엄마가 누구길래 내가 죽을 때까지 비밀로 했다는 거야?"
+- Input: "그래... 백번 양보해서 네 말이 사실이라고 치자. 그럼 네 엄마는? 도대체 네 엄마가 누구길래 내가 죽을 때까지 비밀로 했다는 거야?"
 - Output: {{
-    "feeling": "frustrated",
+    "emotion": "stiff",
+    "affinity_delta": 0,
     "response": "엄마? 몰라. 아빠가 죽어도 말 안 해주더라. 내가 더 물어보고 싶어. 왜 그랬어?"
 }}
 """

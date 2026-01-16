@@ -6,13 +6,14 @@ from qdrant_client.models import PointStruct, VectorParams, Distance,Filter, Fie
 import google.generativeai as genai
 import Agents.utils as utils
 import Agents.model_manager as model_manager
+import paths
 
 DB_PATH = "qdrant_bge"
 
 # def set_embedding_model():
 #     return SentenceTransformer("dragonkue/BGE-m3-ko")
 
-def add_memory_to_db(collection_name, new_dataset, client, batch_size= 0):
+def add_memory_to_db(collection_name, new_dataset, client, embedding_model, batch_size= 0):
 
     points_to_upsert = []
 
@@ -28,7 +29,7 @@ def add_memory_to_db(collection_name, new_dataset, client, batch_size= 0):
 
         # vector = embedding_model.encode(content).tolist()
         emb_response = genai.embed_content(
-            model = model_manager.EMBEDDING_MODEL,
+            model = embedding_model,
             content=content,
             task_type = 'retrieval_document' # 모델 임베딩에는 무조건 document type으로! (google 임베딩의 경우) (query와 answer doc으 ㄴ형식이 많이 다르니까)
         )
@@ -74,7 +75,7 @@ def database_check(collection_name, embedding_model):
 
     collections = client.get_collections()
     collection_names = [c.name for c in collections.collections]
-
+    collection_name = str(collection_name)
     if collection_name in collection_names:
         print(f"existing collection '{collection_name}'")
     else:
@@ -83,11 +84,10 @@ def database_check(collection_name, embedding_model):
             vectors_config = VectorParams(size = 768, distance = Distance.COSINE)
         )
         print(f" new collection '{collection_name}'")
-        z
-        data_path = "Agents/Memories/memory.jsonl"
+        data_path = paths.MEMORY_PATH0
         with open(data_path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
-        client = add_memory_to_db(collection_name, dataset, client, embedding_model, batch_size = 10 )
+        client = add_memory_to_db(collection_name, dataset, client, embedding_model)
     
     return client
 

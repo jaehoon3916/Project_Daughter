@@ -19,21 +19,28 @@ def main():
     user_id = "001"
     embedding_model = model_manager.EMBEDDING_MODEL
     scene_num = 4
-    target_persona = "Daughter"
+    target_persona = "0"
+    affinity = 10
+    on_session = True
     
     # 0. check database 
     client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
-    while True:
+    greeting = "일어났어? 꽤나 푹 자고 있었네."
+    # greeting = model_hub.open_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
+    print(f"은솔: {greeting}")
+    while on_session:
         user_input = input("나: ")
         if(user_input.lower() in ["exit", "quit"]):
-            model_hub.close_session(user_name = user_name, user_id = user_id, target_persona = target_persona, scene_num = scene_num, client = client)
-            print("대화를 종료합니다.")
-            sys .exit(0)
+            break
 
-        response = model_hub.run_model(user_input, user_name, user_id, target_persona, scene_num, client)
+        response = model_hub.run_model(user_input, user_name, user_id, target_persona, affinity, scene_num, client)
         print(f"response: {response}")
-
+    
+    model_hub.close_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
+    print("대화를 종료합니다.")
+    sys .exit(0)
+    
 if __name__ == "__main__":
     
     main()

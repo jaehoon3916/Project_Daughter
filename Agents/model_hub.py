@@ -16,7 +16,7 @@ import json
 
 CONV_TURN_LIMIT = 50
 
-def run_model(user_input: str, user_name: str, user_id: str, target_persona: str, scene_num: int, client: str):
+def run_model(user_input: str, user_name: str, user_id: str, target_persona: str, affinity: int, scene_num: int, client: str):
     user_name = user_name
     user_id = user_id
     client = client
@@ -34,7 +34,7 @@ def run_model(user_input: str, user_name: str, user_id: str, target_persona: str
                                        user_id = user_id, 
                                        user_input = user_input,
                                        target_persona = target_persona)
-    system_prompt = prompt_manager.get_system_instruction(user_name, user_input, target_persona, scene_num, client)
+    system_prompt = prompt_manager.get_system_instruction(user_name, user_input, target_persona, affinity, scene_num, client)
     print(f"=== persona to model ===\n{system_prompt}\n=====================")
     print(f"=== prompt to model ===\n{prompt}\n=====================")
     model_name= api_manager.get_model("gemini-2.5-flash")
@@ -54,18 +54,60 @@ def run_model(user_input: str, user_name: str, user_id: str, target_persona: str
     # return response 
     return response
 
-def close_session(user_name: str, user_id, target_persona: str, scene_num: int, client: str):
+def open_session(user_name: str, user_id: str, target_persona: str, affinity: int, scene_num: int, client: str):
+
+    persona = prompt_manager.get_persona(target_persona, affinity)
+    user_input = "안녕?"
+
+    # 2. 프롬프트 주입 및 응답 받기
+    prompt = prompt_manager.get_prompt(user_name = user_name, 
+                                       user_id = user_id, 
+                                       user_input = user_input,
+                                       target_persona = target_persona)
+    
+    system_prompt = prompt_manager.get_system_instruction(user_name, user_input, target_persona, affinity, scene_num, client)
+    print(f"=== persona to model ===\n{system_prompt}\n=====================")
+    print(f"=== prompt to model ===\n{prompt}\n=====================")
+    model_name= api_manager.get_model("gemini-2.5-flash")
+    raw_response =api_manager.get_model_response_google(system_prompt = system_prompt,
+                                                        prompt = prompt,
+                                                        model_name = model_name,
+                                                        max_tokens = 2000,
+                                                        temperature = 0.9)
+    # 3. 응답 후처리
+    print("===== raw response =====")
+    print(raw_response)    
+    response = log_manager.postprocess(raw_response)
+
+    # 4. 응답 저장
+    log_manager.add_last_conversation(user_name, user_input, response)
+
+    return response
+
+def close_session(user_name: str, user_id, target_persona: str, affinity: int, scene_num: int, client: str):
     user_name = "재훈"
     user_id = "001"
     scene_num = 4
-    target_persona = "Daughter"
-    persona = prompt_manager.get_persona(target_persona)
+    target_persona = 0
+    persona = prompt_manager.get_persona(target_persona, affinity)
 
     # 0. 세션 종료 시 대화 내용 메모리에 저장
-    memory_mangager.reflect(collection_name = target_persona, 
-                            persona = persona,
-                            client = client, 
-                            scene_num = scene_num)
+
+    # option1: summary memory
+    memory_mangager.save_conversation_to_memory(collection_name = target_persona, 
+                                                persona = persona,
+                                                client = client,
+                                                scene_num = scene_num)
+
+
+    # option2: reflective memory
+    # memory_mangager.reflect(collection_name = target_persona, 
+    #                         persona = persona,
+    #                         client = client, 
+    #                         scene_num = scene_num)
+    
+
+    
                                             
 
 

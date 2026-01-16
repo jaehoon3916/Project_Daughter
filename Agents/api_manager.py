@@ -26,7 +26,7 @@ def get_model_response_google(system_prompt,
                               prompt, 
                               model_name,
                               temperature = 0.9,
-                              max_tokens = 1000,
+                              max_tokens = 2048,
                               json = False):
 
     # 1. get api key

@@ -29,7 +29,7 @@ Goals
 
 
 """
-CONV_TURN_LIMIT = 50
+CONV_TURN_LIMIT = 100
 
 def get_memory_for_response_prompt(user_name, user_input, target_persona, scene_num:int, client):
     """
@@ -106,10 +106,14 @@ Your Output:
 #     prompt_path = "Prompts/observation_prompt.txt"
 #     with open(prompt_path, 'r', 'utf-8') as f:
 
-def save_to_memory(new_dataset):
+def save_to_memory(new_dataset, target_persona):
     # with open(paths.MEMORY, "a", encoding="utf-8") as f:
     #     f.write(json.dumps(new_dataset, ensure_ascii=False) + "\n")
-    with open(paths.MEMORY, "r", encoding="utf-8") as f:
+
+    if target_persona == 0:
+        memory_path  = paths.MEMORY_PATH0
+
+    with open(memory_path, "r", encoding="utf-8") as f:
         memory_list = json.load(f)  # 여기서 memory_list는 파이썬의 '리스트'가 됩니다.
 
     # 3. 리스트에 '뽁' 추가합니다.
@@ -117,11 +121,11 @@ def save_to_memory(new_dataset):
         memory_list.append(new_data)
 
     # 4. 리스트 전체를 다시 파일에 씁니다.
-    with open(paths.MEMORY, "w", encoding="utf-8") as f:
+    with open(memory_path, "w", encoding="utf-8") as f:
         # indent=2를 주면 보기 좋게 정렬되고, ensure_ascii=False는 한글 안 깨지게 해줍니다.
         json.dump(memory_list, f, ensure_ascii=False, indent=2)
 
-def save_conversation_to_memory(collection_name, client, embedding_model, scene_num):
+def save_conversation_to_memory(collection_name, persona,client, scene_num):
     """
     대화 내용을 요약해서 메모리에 저장. 
     """
@@ -133,49 +137,96 @@ def save_conversation_to_memory(collection_name, client, embedding_model, scene_
     target_persona = collection_name
     system_prompt = f"""
 <Instruction>
-1. 아래 <dialogue history>를 읽고, 중요한 정보 및 대화 맥락을 추출한다.
-2. 추출한 중요한 정보 및 대화맥락을 바탕으로 1~3문장으로 <dialogue history>의 요약문을 작성한다.
-3. 요약문은 {target_persona} 기억의 input_query로 사용된다.
-4. 요약문은 diaglogue history를 충실히 설명해야 하며, 명확해야 한다.
+1. 주어진 <dialogue history>에서 {target_persona}가 기억해야 할 핵심 정보를 추출한다.
+2. **맥락적 그룹화**: 하나의 에피소드는 절대 나누지 말고 하나의 완성된 문장으로 통합한다.
+3. **독립성 유지**: 전혀 다른 주제의 이야기는 다른 정보로 분리한다.
+4. **풍부한 정보**: 단순히 사실만 나열하지 말고, 당시의 분위기나 {target_persona}의 태도, 인과관계를 포함하여 '서사형'으로 작성한다.
+5. 출력은 반드시 아래 <output format>인 JSON 형식을 엄격히 준수한다.
 
-<perona>
+<persona>
 다음은 {target_persona}의 페르소나이다. 
-{prompt_manager.get_persona(target_persona)}
+{persona}
 
 <dialogue history>
 {last_conversations}
 
 <output format>
+<think>(reasoning step)</think>
 {{
-    "summary": (대화 요약문)
+    "extracted_info": [
+        {{
+            "1": (중요한 정보 1)
+        }},
+        {{
+            "2": (중요한 정보 2)
+        }}
+    ]
 }}
+
+example)
+1) 
+input: 
+"user": "뭐하냐"
+"daughter": "침대에 누워있는데."
+"user": "그래? 나 치킨 사왔는데 치킨 좀 먹을래?"
+"daughter": "응."
+"user": "뻥이야. 안 사왔어."
+"daughter": "진짠 줄 알았네."
+"user": "에이, 재미없어"
+"daughter": "나는 재밌었는데."
+"user": "에라이... 야, 오늘 밖에 비오니까 괜히 나가지 마라."
+"daughter": "알겠어."
+
+output:
+[{{
+        "1": "아빠가 치킨을 사왔다며 먹을지 물었다. Daughter는 그러겠다고 했지만, 그것은 거짓말이었다. Daughter는 무덤덤하게 답했고 그 반응에 아빠는 실망했다."
+    }},
+    {{
+        "2": "밖에 비가 온다."
+}}]
 """
     prompt = "output: "
-    raw_response = api_manager.get_model_response_google(system_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.5, json=True)
-
-    response = json.loads(raw_response)
-    print("==== conversation summary ====")
-    print(response["summary"])
-
     try:
-    # 요약내용 메모리에 저장
-        new_dataset =[{
-                "level": 1,
-                "type": "observation",
-                "content": response["summary"],
-                "scene_num": scene_num  
-            }]
-    
-        save_to_memory(new_dataset)
-        rag_manager.add_memory_to_db(collection_name, new_dataset, client, embedding_model,  batch_size= 0)
+        raw_response = api_manager.get_model_response_google(system_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.2, json=True)
         
-        # 대화 로그 초기화
-        log_manager.clear_conversation_log()
-        
-        return True
+        print("==== raw response for conversation summary ====")
+        print(raw_response)
+
+        response = json.loads(raw_response).get("extracted_info", [])
     except Exception as e:
-        print(f"Error saving conversation to memory: {e}")
-        return False
+        print(f"Error getting extracted info: {e}")
+        return
+
+    print("==== conversation summary ====")
+    print(response)
+    
+    info_list = []
+    for _, item in enumerate(response):
+        for i, info in item.items():
+            print(f"==== processing extracted info {i} ====")
+            print(info)
+        try:
+        # 요약내용 메모리에 저장
+            new_dataset ={
+                    "level": 1,
+                    "type": "observation",
+                    "content": info,
+                    "scene_num": scene_num  
+                }
+
+            info_list.append(new_dataset)
+
+        except Exception as e:
+            print(f"Error saving conversation to memory: {e}")
+            continue
+    
+    save_to_memory(info_list, target_persona)
+    rag_manager.add_memory_to_db(collection_name, info_list, client, batch_size= 0)
+    
+    # 대화 로그 초기화
+    log_manager.clear_conversation_log()
+
+    return info_list
 
 def reflect(collection_name, persona, client, scene_num):
     """
@@ -195,14 +246,16 @@ def reflect(collection_name, persona, client, scene_num):
     target_persona = collection_name
     system_prompt = f"""
 <Instruction>
-1. 아래 <dialogue history>를 읽고, 중요한 정보를 추출한다.
-2. 각 정보는 서로 독립적이어야 한다. 동일한 주제의 내용은 하나의 정보로 정리한다. 
-3. 각 정보는 {target_persona} 기억의 input_query로 사용된다.
-4. 출력은 <output>의 format을 반드시 따른다. 
+1. 주어진 <dialogue history>에서 {target_persona}가 기억해야 할 핵심 정보를 추출한다.
+2. **맥락적 그룹화**: 연관된 대화의 흐름은 절대 나누지 말고 하나의 완성된 문장으로 통합한다.
+    - 예: A의 제안 -> B의 거절 -> A의 반응은 각각의 정보가 아니라 '하나의 에피소드'로 작성한다.
+3. **독립성 유지**: 전혀 다른 주제의 이야기는 별도의 번호로 분리한다.
+4. **풍부한 정보**: 단순히 사실만 나열하지 말고, 당시의 분위기나 {target_persona}의 태도, 인과관계를 포함하여 '서사형'으로 작성한다.
+5. 출력은 반드시 아래 <output format>인 JSON 형식을 엄격히 준수한다.
 
 <persona>
 다음은 {target_persona}의 페르소나이다. 
-{prompt_manager.get_persona(target_persona)}
+{persona}
 
 <dialogue history>
 {last_conversations}
@@ -240,7 +293,7 @@ output:
     }},
     {{
         "2": "밖에 비가 온다."
-}}
+}}]
 """
     prompt = "output: "
     raw_response = api_manager.get_model_response_google(system_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.2, json=True)
