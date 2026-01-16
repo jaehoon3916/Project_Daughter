@@ -3,70 +3,6 @@
         "role": "user",
         "parts": [
             {
-                "text": "뭐하냐"
-            }
-        ]
-    },
-    {
-        "role": "model",
-        "parts": [
-            {
-                "text": "침대에 누워있는데."
-            }
-        ]
-    },
-    {
-        "role": "user",
-        "parts": [
-            {
-                "text": "그래? 나 치킨 사왔는데 치킨 좀 먹을래?"
-            }
-        ]
-    },
-    {
-        "role": "model",
-        "parts": [
-            {
-                "text": "응."
-            }
-        ]
-    },
-    {
-        "role": "user",
-        "parts": [
-            {
-                "text": "뻥이야. 안 사왔어."
-            }
-        ]
-    },
-    {
-        "role": "model",
-        "parts": [
-            {
-                "text": "진짠 줄 알았네."
-            }
-        ]
-    },
-    {
-        "role": "user",
-        "parts": [
-            {
-                "text": "에이, 재미없어"
-            }
-        ]
-    },
-    {
-        "role": "model",
-        "parts": [
-            {
-                "text": "나는 재밌었는데."
-            }
-        ]
-    },
-    {
-        "role": "user",
-        "parts": [
-            {
                 "text": "안녕"
             }
         ]
@@ -75,39 +11,7 @@
         "role": "model",
         "parts": [
             {
-                "text": "응, 안녕."
-            }
-        ]
-    },
-    {
-        "role": "user",
-        "parts": [
-            {
-                "text": "안녕"
-            }
-        ]
-    },
-    {
-        "role": "model",
-        "parts": [
-            {
-                "text": "응, 안녕."
-            }
-        ]
-    },
-    {
-        "role": "user",
-        "parts": [
-            {
-                "text": "안녕"
-            }
-        ]
-    },
-    {
-        "role": "model",
-        "parts": [
-            {
-                "text": "응, 안녕."
+                "text": "왔어, 아빠."
             }
         ]
     }

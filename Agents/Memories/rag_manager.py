@@ -83,7 +83,7 @@ def database_check(collection_name, embedding_model):
             vectors_config = VectorParams(size = 768, distance = Distance.COSINE)
         )
         print(f" new collection '{collection_name}'")
-        
+        z
         data_path = "Agents/Memories/memory.jsonl"
         with open(data_path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)

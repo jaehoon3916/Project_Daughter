@@ -255,49 +255,55 @@ output:
 
     # 2. 추출된 정보를 바탕으로 관련 기억 검색 및 수집
     reflection_list = []
-    for i, info in enumerate(info_list):
-        print(f"==== processing extracted info {i} ====")
-        print(info)
-        info
-        # model_name = model_manager.EMBEDDING_MODEL
-        # client = rag_manager.database_check(collection_name = target_persona, embedding_model = model_name)
-        retrieved_mem, context = rag_manager.search_memory(collection_name = target_persona,
-                                                            client = client,
-                                                            query = info)
-        print("==== retrieved memory for reflection ====")
-        print(context)
+    for _, info_dict in enumerate(info_list):
+        print("==== info dict ====")
+        print(type(info_dict))
+        print(info_dict)
+        for i, info in info_dict.items():
+            print(f"==== processing extracted info {i} ====")
+            print(info)
+            # model_name = model_manager.EMBEDDING_MODEL
+            # client = rag_manager.database_check(collection_name = target_persona, embedding_model = model_name)
+            retrieved_mem, context = rag_manager.search_memory(collection_name = target_persona,
+                                                                client = client,
+                                                                query = info)
+            print("==== retrieved memory for reflection ====")
+            print(context)
 
-        # 3. 수집된 기억들과 추출된 정보를 바탕으로 새로운 인사이트 도출
-        reflection_prompt = f"""
-너는 주어진 <memory>와 <current info>를 바탕으로 새로운 인사이트를 도출하는 LLM이다. 
+            # 3. 수집된 기억들과 추출된 정보를 바탕으로 새로운 인사이트 도출
+            reflection_prompt = f"""
+    너는 주어진 <memory>와 <current info>를 바탕으로 새로운 인사이트를 도출하는 LLM이다. 
 
-이것은 너의 페르소나이다.
-<persona>
-{persona}
+    이것은 너의 페르소나이다.
+    <persona>
+    {persona}
 
-<Instruction>
-1. 당신의 페르소나를 바탕으로, <current info>와 각 <memory>의 관계를 제시하라.
-2. 제시된 관계 속에서 도출할 수 있는 새로운 인사이트가 있다면, 구체적으로 설명하라.
-3. 인사이트에서 비롯되는 너의 감정을 <memory> 및 <current info>로부터 도출하여 추가하라.
+    <Instruction>
+    1. 당신의 페르소나를 바탕으로, <current info>와 각 <memory>의 관계를 제시하라.
+    2. 제시된 관계 속에서 도출할 수 있는 새로운 인사이트가 있다면, 구체적으로 설명하라.
+    3. 인사이트에서 비롯되는 너의 감정을 <memory> 및 <current info>로부터 도출하여 추가하라.
+    4. 출력은 <output>의 json format을 반드시 따른다.
 
-<memory>
-{context}
+    <memory>
+    {context}
 
-<current info>
-{info}
+    <current info>
+    {info}
 
-<output>
-{{
-    "insight": (도출된 인사이트),
-    "related_memory": (관련 기억 내용),
-    "current_info": (현재 정보 내용),
-    "reflection_emotion": (인사이트로부터 도출된 감정)
-}}
-"""
-        
-        prompt = f"output: "
-        raw_response = api_manager.get_model_response_google(reflection_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.3, json=True)
-        try:
+    <output>
+    {{
+        "insight": (도출된 인사이트),
+        "related_memory": (관련 기억 내용),
+        "current_info": (현재 정보 내용),
+        "reflection_emotion": (인사이트로부터 도출된 감정)
+    }}
+    """
+            
+            prompt = f"output: "
+            raw_response = api_manager.get_model_response_google(reflection_prompt, prompt, model_name="gemini-2.5-flash", temperature=0.3, json=True)
+            # try:
+            print("==== raw reflection response ====")
+            print(raw_response)
             reflection = json.loads(raw_response)
             print("==== reflection result ====")
             print(reflection)
@@ -311,10 +317,10 @@ output:
                 }
 
             reflection_list.append(new_dataset)
-        except Exception as e:
-            print(f"Error parsing reflection result: {e}")
-            continue
-    
+            # except Exception as e:
+            #     print(f"Error parsing reflection result: {e}")
+            #     continue
+        
     save_to_memory(reflection_list)  
     rag_manager.add_memory_to_db(collection_name, reflection_list, client, batch_size= 0)
 
