@@ -17,8 +17,10 @@ def get_model(model_version: str = "gemini-2.5-flash"):
         return "gemini-1.5-flash-latest"
     elif model_version == "gemini-2.0-flash-lite":
         return "gemini-2.0-flash-lite"
-    elif model_version == "gemini-3.0-pro":
-        return "gemini-3.5-pro"
+    elif model_version == "gemini-3-pro-preview":
+        return "gemini-3-pro-preview"
+    elif model_version == "gemini-3-flash-preview":
+        return "gemini-3-flash-preview"
 
 
 # google 사용 response

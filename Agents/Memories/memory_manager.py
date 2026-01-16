@@ -110,7 +110,7 @@ def save_to_memory(new_dataset, target_persona):
     # with open(paths.MEMORY, "a", encoding="utf-8") as f:
     #     f.write(json.dumps(new_dataset, ensure_ascii=False) + "\n")
 
-    if target_persona == 0:
+    if target_persona == "은솔":
         memory_path  = paths.MEMORY_PATH0
 
     with open(memory_path, "r", encoding="utf-8") as f:
@@ -132,8 +132,8 @@ def save_conversation_to_memory(collection_name, persona,client, scene_num):
 
     # 최근 대화 요약
     last_conversations, conv_length= log_manager.get_last_conversations_list()
-    if conv_length < CONV_TURN_LIMIT:
-        return
+    # if conv_length < CONV_TURN_LIMIT:
+    #     return
     target_persona = collection_name
     system_prompt = f"""
 <Instruction>

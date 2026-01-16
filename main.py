@@ -15,12 +15,12 @@ def main():
     # 4. 기타 스탯 정보
 
     # user_input = "안녕?"
-    user_name = "재훈"
+    user_name = "연돌이"
     user_id = "001"
     embedding_model = model_manager.EMBEDDING_MODEL
-    scene_num = 4
-    target_persona = "0"
-    affinity = 10
+    scene_num = 5
+    target_persona = "은솔"
+    affinity = 75
     on_session = True
     
     # 0. check database 

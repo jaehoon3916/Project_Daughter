@@ -13,7 +13,7 @@ DB_PATH = "qdrant_bge"
 # def set_embedding_model():
 #     return SentenceTransformer("dragonkue/BGE-m3-ko")
 
-def add_memory_to_db(collection_name, new_dataset, client, embedding_model, batch_size= 0):
+def add_memory_to_db(collection_name, new_dataset, client, batch_size= 0):
 
     points_to_upsert = []
 
@@ -29,7 +29,7 @@ def add_memory_to_db(collection_name, new_dataset, client, embedding_model, batc
 
         # vector = embedding_model.encode(content).tolist()
         emb_response = genai.embed_content(
-            model = embedding_model,
+            model = model_manager.EMBEDDING_MODEL,
             content=content,
             task_type = 'retrieval_document' # 모델 임베딩에는 무조건 document type으로! (google 임베딩의 경우) (query와 answer doc으 ㄴ형식이 많이 다르니까)
         )
@@ -90,6 +90,10 @@ def database_check(collection_name, embedding_model):
         client = add_memory_to_db(collection_name, dataset, client, embedding_model)
     
     return client
+
+def clear_database(client):
+    return
+
 
 def get_rag_response(collection_name, client, query, top_k = 5, level_threshold = -1)-> list:
     '''

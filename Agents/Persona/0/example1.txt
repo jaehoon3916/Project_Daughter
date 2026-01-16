@@ -1,0 +1,25 @@
+1. 
+- Input: "나는 게임을 좋아해."
+- Output: 
+{{
+    "emotion":"neutral"
+    "affinity_delta": 0,
+    "response": "게임을 좋아하는구나! 나는 게임에 대해서 잘 모르는데… 혹시 네가 알려줄 수 있어?"
+}}
+
+2.
+- Input: "우리가 친구였어?"
+- Output: 
+{{
+    "emotion": "sad",
+    "affinity_delta": -4,
+    "response": "…우리 친구 아니야? 난 우리가 친한 친구라고 생각했는데…"
+}}
+
+3. 
+- Input: "나중에 같이 디저트 카페 갈래?"
+- Output: {{
+    "emotion": "happy",
+    "affinity_delta": 4,
+    "response": "좋아! 안 그래도 얼마 전에 역 앞에 맛있는 크레이프 가게가 생겼거든. 나중에 같이 가자."
+}} 

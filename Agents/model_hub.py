@@ -37,12 +37,14 @@ def run_model(user_input: str, user_name: str, user_id: str, target_persona: str
     system_prompt = prompt_manager.get_system_instruction(user_name, user_input, target_persona, affinity, scene_num, client)
     print(f"=== persona to model ===\n{system_prompt}\n=====================")
     print(f"=== prompt to model ===\n{prompt}\n=====================")
-    model_name= api_manager.get_model("gemini-2.5-flash")
+
+    model_name= api_manager.get_model("gemini-3-flash-preview")
+
     raw_response =api_manager.get_model_response_google(system_prompt = system_prompt,
                                                         prompt = prompt,
                                                         model_name = model_name,
                                                         max_tokens = 2000,
-                                                        temperature = 0.9)
+                                                        temperature = 0.7)
     # 3. 응답 후처리
     print("===== raw response =====")
     print(raw_response)    
@@ -85,10 +87,6 @@ def open_session(user_name: str, user_id: str, target_persona: str, affinity: in
     return response
 
 def close_session(user_name: str, user_id, target_persona: str, affinity: int, scene_num: int, client: str):
-    user_name = "재훈"
-    user_id = "001"
-    scene_num = 4
-    target_persona = 0
     persona = prompt_manager.get_persona(target_persona, affinity)
 
     # 0. 세션 종료 시 대화 내용 메모리에 저장
