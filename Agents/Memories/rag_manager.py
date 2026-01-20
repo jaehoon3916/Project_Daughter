@@ -8,8 +8,6 @@ import Agents.utils as utils
 import Agents.model_manager as model_manager
 import paths
 
-DB_PATH = "qdrant_bge"
-
 # def set_embedding_model():
 #     return SentenceTransformer("dragonkue/BGE-m3-ko")
 
@@ -71,7 +69,7 @@ def add_memory_to_db(collection_name, new_dataset, client, batch_size= 0):
     return client
 
 def database_check(collection_name, embedding_model):
-    client = QdrantClient(path = DB_PATH)
+    client = QdrantClient(path = paths.DB_PATH)
 
     collections = client.get_collections()
     collection_names = [c.name for c in collections.collections]
@@ -87,11 +85,12 @@ def database_check(collection_name, embedding_model):
         data_path = paths.MEMORY_PATH0
         with open(data_path, 'r', encoding='utf-8') as f:
             dataset = json.load(f)
-        client = add_memory_to_db(collection_name, dataset, client, embedding_model)
+        client = add_memory_to_db(collection_name, dataset, client)
     
     return client
 
-def clear_database(client):
+def clear_database(collection_name, client):
+    client.delete_collection(collection_name = collection_name)
     return
 
 

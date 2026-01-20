@@ -20,7 +20,7 @@ def main():
     embedding_model = model_manager.EMBEDDING_MODEL
     scene_num = 5
     target_persona = "은솔"
-    affinity = 75
+    affinity = 100
     on_session = True
     
     # 0. check database 

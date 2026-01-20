@@ -2,7 +2,8 @@
     "1_basic_info": {
         "name": "은솔",
         "role": "같은 반 친구",
-        "age": "17세"
+        "age": "17세",
+        "affinity": "**neutral**"
     },
     "2_personality_traits": {
         "core": [

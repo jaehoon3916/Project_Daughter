@@ -81,11 +81,8 @@ def postprocess(raw_response:str) -> json:
             return json.loads(json_str)
         except json.JSONDecodeError as e:
             print(f"JSON 파싱 에러: {e}")
-            # 에러 시 기본값 반환하거나 예외 처리
-            return {"feeling": "neutral", "response": "오류가 발생했습니다.", "action": ""}
     else:
         print("JSON 형식을 찾을 수 없습니다.")
-        return {"feeling": "neutral", "response": "응답 형식이 잘못되었습니다.", "action": ""}
 
 def clear_conversation_log():
     # ==== 대화 로그 초기화 =====
