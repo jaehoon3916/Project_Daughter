@@ -25,7 +25,8 @@ class ChatRequest(BaseModel):
     affinity: int
     response: str
 
-
+embedding_model = model_manager.EMBEDDING_MODEL
+client = rag_manager.database_check(collection_name = "은솔", embedding_model = embedding_model)
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
@@ -36,8 +37,6 @@ async def chat_endpoint(request: ChatRequest):
     target_persona = request.target_persona # str
     affinity = request.affinity
     response = request.response
-    embedding_model = model_manager.EMBEDDING_MODEL
-    client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
     # --- AI 처리 구간 ---
     ai_response = model_hub.run_model(response, user_name, user_id, target_persona, affinity, scene_num, client)
@@ -57,8 +56,8 @@ async def open_endpoint(request: ChatRequest):
     target_persona = request.target_persona # str
     affinity = request.affinity
     response = request.response
-    embedding_model = model_manager.EMBEDDING_MODEL
-    client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
+    # embedding_model = model_manager.EMBEDDING_MODEL
+    # client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
     
     ai_response = model_hub.open_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
     return {
@@ -74,8 +73,8 @@ async def close_endpoint(request: ChatRequest):
     scene_num = request.scene_num
     target_persona = request.target_persona # str
     affinity = request.affinity
-    embedding_model = model_manager.EMBEDDING_MODEL
-    client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
+    # embedding_model = model_manager.EMBEDDING_MODEL
+    # client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
     model_hub.close_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
 
