@@ -30,13 +30,6 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     print(f"유니티에서 온 메시지: {request.response}")
-    # response, affinity
-    
-    
-    # user_name = "재훈"
-    # user_id = "001"
-    # scene_num = 4
-    # target_persona = "Daughter"
     user_name = request.name
     user_id = '001'
     scene_num = request.scene_num
@@ -52,7 +45,7 @@ async def chat_endpoint(request: ChatRequest):
     # ------------------------------------------
     return {
         "response": ai_response["response"],
-        "affinity_change": ai_response["affinity_delta"],
+        "affinity_delta": ai_response["affinity_delta"],
         "emotion": ai_response["emotion"]
     }
 
@@ -70,7 +63,7 @@ async def open_endpoint(request: ChatRequest):
     ai_response = model_hub.open_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
     return {
         "response": ai_response["response"],
-        "affinity_change": ai_response["affinity_delta"],
+        "affinity_delta": ai_response["affinity_delta"],
         "emotion": ai_response["emotion"]
     }
 
@@ -85,6 +78,7 @@ async def close_endpoint(request: ChatRequest):
     client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
     model_hub.close_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
+
     return True
     # ------------------------------------------
 

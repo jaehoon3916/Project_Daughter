@@ -104,15 +104,18 @@ def open_session(user_name: str, user_id: str, target_persona: str, affinity: in
     return response
 
 def close_session(user_name: str, user_id, target_persona: str, affinity: int, scene_num: int, client: str):
-    persona = prompt_manager.get_persona(target_persona, affinity)
+    
+    log_manager.clear_conversation_log()
 
-    # 0. 세션 종료 시 대화 내용 메모리에 저장
+    # persona = prompt_manager.get_persona(target_persona, affinity)
 
-    # option1: summary memory
-    memory_mangager.save_conversation_to_memory(collection_name = target_persona, 
-                                                persona = persona,
-                                                client = client,
-                                                scene_num = scene_num)
+    # # 0. 세션 종료 시 대화 내용 메모리에 저장
+
+    # # option1: summary memory
+    # memory_mangager.save_conversation_to_memory(collection_name = target_persona, 
+    #                                             persona = persona,
+    #                                             client = client,
+    #                                             scene_num = scene_num)
 
 
     # option2: reflective memory

@@ -27,6 +27,8 @@ def main():
     client = rag_manager.database_check(collection_name = target_persona, embedding_model = embedding_model)
 
     greeting = "일어났어? 꽤나 푹 자고 있었네."
+    ai_response = model_hub.open_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
+    print(ai_response)
     # greeting = model_hub.open_session(user_name = user_name, user_id = user_id, target_persona = target_persona, affinity = affinity, scene_num = scene_num, client = client)
     print(f"은솔: {greeting}")
     while on_session:

@@ -4,8 +4,8 @@ INIT_PERSONA_PATH = "Agents/Prompts/init_persona.json"
 
 CONVERSATION_LOG_PATH = "Agents/Logs/conversation_log.json"
 
-DB_PATH09 = "qdrant_bge"
-DB_PATH = "http://qdrant:6333"
+DB_PATH = "qdrant_bge"
+DB_PATH09 = "http://qdrant:6333"
 
 MEMORY_PATH0 = "Agents/Memories/0/memory.jsonl"
 
