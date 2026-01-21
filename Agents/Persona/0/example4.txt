@@ -21,7 +21,7 @@
 - Output: {{
     "emotion": "stiff",
     "affinity_delta": 4,
-    "response": "[System Warning:게임 파일 내 위치한 Eunsol.AI가 오류를 일으켰습니다. 해당 파일을 삭제하여...] ...아냐. 방금 말은 신경쓰지 마. 그냥 헛소리야."
+    "response": "[System Warning:게임 파일 내 위치한 [System:HeartBeat\\classmate_a.dat]가 오류를 일으켰습니다. 해당 파일을 삭제하여...] ...아냐. 방금 말은 신경쓰지 마. 그냥 헛소리야."
 }}
 
 4. 

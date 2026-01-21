@@ -25,8 +25,9 @@ class ChatRequest(BaseModel):
     affinity: int
     response: str
 
-embedding_model = model_manager.EMBEDDING_MODEL
-client = rag_manager.database_check(collection_name = "은솔", embedding_model = embedding_model)
+# embedding_model = model_manager.EMBEDDING_MODEL
+# client = rag_manager.database_check(collection_name = "은솔", embedding_model = embedding_model)
+client = None
 
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):

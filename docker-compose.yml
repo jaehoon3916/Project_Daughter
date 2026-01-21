@@ -9,11 +9,11 @@ services:
       - qdrant
     restart: always
 
-  # Qdrant 벡터 데이터베이스
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-    volumes:
-      - ./qdrant_data:/qdrant/storage # 기억 데이터 보존
-    restart: always
+  # # Qdrant 벡터 데이터베이스
+  # qdrant:
+  #   image: qdrant/qdrant:latest
+  #   ports:
+  #     - "6333:6333"
+  #   volumes:
+  #     - ./qdrant_data:/qdrant/storage # 기억 데이터 보존
+  #   restart: always
