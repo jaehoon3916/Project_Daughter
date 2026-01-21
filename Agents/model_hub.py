@@ -87,7 +87,7 @@ def open_session(user_name: str, user_id: str, target_persona: str, affinity: in
     system_prompt = prompt_manager.get_system_instruction(user_name, user_input, target_persona, affinity, scene_num, client)
     print(f"=== persona to model ===\n{system_prompt}\n=====================")
     print(f"=== prompt to model ===\n{prompt}\n=====================")
-    model_name= api_manager.get_model("gemini-2.5-flash")
+    model_name= api_manager.get_model("gemini-3-flash-preview")
     raw_response =api_manager.get_model_response_google(system_prompt = system_prompt,
                                                         prompt = prompt,
                                                         model_name = model_name,

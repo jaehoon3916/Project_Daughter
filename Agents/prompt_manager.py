@@ -44,17 +44,20 @@ def get_system_instruction(user_name, user_input, target_persona, affinity, scen
     # ==== 시스템 인스트럭션 불러오기 =====
     instruction = get_prompt_rules(target_persona, affinity)
     persona = get_persona(target_persona, affinity)
-    scenario = context_manager.get_scenario(user_name)
-    memory = memory_manager.get_memory_for_response_prompt(user_name = user_name,
-                                                           user_input = user_input, 
-                                                           target_persona = target_persona, 
-                                                           scene_num = scene_num, 
-                                                           client = client)
+    # memory = memory_manager.get_memory_for_response_prompt(user_name = user_name,
+    #                                                        user_input = user_input, 
+    #                                                        target_persona = target_persona, 
+    #                                                        scene_num = scene_num, 
+    #                                                        client = client)
+#     system_instruction = f"""
+# {instruction}
+# {memory}
+# {persona}
+#     """
     system_instruction = f"""
 {instruction}
-{memory}
 {persona}
-    """
+        """
     return system_instruction
 
 
