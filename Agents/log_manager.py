@@ -2,6 +2,8 @@ import os
 import json
 import re
 import paths as paths
+import shutil
+from pathlib import Path
 
 def get_last_conversations_list(n = -1):
     # ==== 최근 대화 불러오기 =====
@@ -92,10 +94,17 @@ def clear_conversation_log():
 
 def log_backup():
     # ==== 대화 로그 백업 =====
-    if os .path.exists(paths.CONVERSATION_LOG_PATH):
-        with open(paths.CONVERSATION_LOG_PATH, "r", encoding="utf-8") as f:
-            conv_history = json.load(f)
-        
-        backup_path = paths.CONVERSATION_LOG_PATH.replace(".json", "_backup.json")
-        with open(backup_path, "w", encoding="utf-8") as f:
-            json.dump(conv_history, f, ensure_ascii=False, indent=4)
+    log_path = Path(paths.CONVERSATION_LOG_PATH)
+    backup_dir = log_path.parent/"backups"
+
+    if not backup_dir.exists():
+        backup_dir.mkdir(parents=True, exist_ok = True)
+
+    if log_path.exists():
+        i = 1
+        while True:
+            new_backup_path = backup_dir / f"backup_{i}.json"
+            if not new_backup_path.exists():
+                break
+            i += 1
+        shutil.copy2(log_path, new_backup_path)
